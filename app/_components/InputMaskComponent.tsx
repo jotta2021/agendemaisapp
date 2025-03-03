@@ -8,21 +8,22 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-
+import MaskInput,{Masks} from "react-native-mask-input";
 // import { Container } from './styles';
 interface Props {
   label: string;
   value: string;
   setValue: (value: string) => void;
   placeholder: string;
-  type?: KeyboardTypeOptions;
-  icon?: ReactNode;
-  security?: boolean | undefined;
+  type: KeyboardTypeOptions;
+  icon: ReactNode;
+  security: boolean | undefined;
   visible?: boolean | undefined
   setVisible?:(value:boolean)=> void | undefined;
+  maskType: string;
 }
 
-const InputComponent = ({
+const InputMasKComponent = ({
   label,
   placeholder,
   value,
@@ -31,7 +32,8 @@ const InputComponent = ({
   type,
   security,
   visible,
-  setVisible
+  setVisible,
+  maskType
 }: Props) => {
   const [isFocus, setIsFocus] = useState(false);
   
@@ -47,14 +49,14 @@ const InputComponent = ({
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.containerInput}>
-        <TextInput
+        <MaskInput
+        mask={maskType ==='phone' ? Masks.BRL_PHONE : maskType ==='cpf' ? Masks.BRL_CPF : Masks.BRL_CPF}
           placeholder={placeholder}
           style={isFocus ? styles.inputFocus : styles.input}
           onFocus={handleFocus}
           onBlur={handleBlur}
           value={value}
-          onChangeText={(text) => setValue(text)}
-          secureTextEntry={security && security===true && visible && visible===true ? true :false}
+          onChangeText={(masked,unMasked) => setValue(masked)}
           keyboardType={type}
         />
         {icon && (
@@ -96,4 +98,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InputComponent;
+export default InputMasKComponent;

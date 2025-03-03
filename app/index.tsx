@@ -2,6 +2,7 @@ import { Image, StyleSheet, Text, View,Animated } from "react-native";
 import colors from "@/assets/colors";
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SplashScreen() {
 const [fadeIn] = useState(new Animated.Value(0))
@@ -23,19 +24,29 @@ function FadeIn(){
   }).start()
 }
 
-
+let user: string | null = null;
+  async function verifyLogin() {
+    const userData = await AsyncStorage.getItem("token");  
+    user = userData
+  }
+verifyLogin()
 fadeOut()
 setTimeout(()=> {
   FadeIn()
   setTimeout(()=> {
-    router.replace('/introduction')
+    if(user){
+      router.replace('/(tabs)')
+    }else{
+      router.replace('/introduction')
+    }
+
   },1000)
  
 },1500)
 
 
 },[])
-console.log(fadeIn)
+
   return (
     <View style={styles.container}>
       <Animated.View style={{opacity:fadeIn}}>

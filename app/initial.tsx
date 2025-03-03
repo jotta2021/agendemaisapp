@@ -1,6 +1,6 @@
 import colors from "@/assets/colors";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -15,26 +15,35 @@ import {
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Login from "./_components/login";
+import Register from "./_components/register";
+
 
 const width = Dimensions.get("screen").width;
 const InitialHome = () => {
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ["80%"], []);
+  const [page,setPage] = useState('')
+  const snapPoints = useMemo(() => ["95%"], []);
 
   const handleClosePress = () => {
     if (bottomSheetRef.current) {
       bottomSheetRef.current.close();
+      
     }
   };
-  const handleOpenPress = () => {
+  const handleOpenPress = (page:string) => {
     if (bottomSheetRef.current) {
+      setPage(page)
       bottomSheetRef.current.expand();
     }
   };
- 
+
+
   return (
     <GestureHandlerRootView>
+    
       <View style={styles.container}>
+  
+      
         <View style={styles.containerImage}>
           <Image
             source={require("@/assets/images/initial.png")}
@@ -51,11 +60,13 @@ const InitialHome = () => {
 
         <View style={styles.containerButton}>
           <TouchableOpacity style={styles.button} activeOpacity={0.8}
-          onPress={handleOpenPress}
+          onPress={()=> handleOpenPress('login')}
           >
             <Text style={styles.textButton}>Entrar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonOutline} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.buttonOutline} activeOpacity={0.8}
+          onPress={()=> handleOpenPress('register')}
+          >
             <Text style={styles.textButtonOutline}>Se cadastrar</Text>
           </TouchableOpacity>
         </View>
@@ -63,7 +74,12 @@ const InitialHome = () => {
 
       <BottomSheet ref={bottomSheetRef} snapPoints={snapPoints} index={-1}>
         <BottomSheetView>
-          <Login close={handleClosePress}/>
+          {
+            page ==='login' ?
+            <Login close={handleClosePress}/> :
+            <Register close={handleClosePress}/>
+          }
+          
         </BottomSheetView>
       </BottomSheet>
     </GestureHandlerRootView>
