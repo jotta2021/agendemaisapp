@@ -15,9 +15,9 @@ interface Props {
   value: string;
   setValue: (value: string) => void;
   placeholder: string;
-  type: KeyboardTypeOptions;
-  icon: ReactNode;
-  security: boolean | undefined;
+  type?: KeyboardTypeOptions;
+  icon?: ReactNode;
+  security?: boolean | undefined;
   visible?: boolean | undefined
   setVisible?:(value:boolean)=> void | undefined;
   maskType: string;
@@ -50,7 +50,7 @@ const InputMasKComponent = ({
       <Text style={styles.label}>{label}</Text>
       <View style={styles.containerInput}>
         <MaskInput
-        mask={maskType ==='phone' ? Masks.BRL_PHONE : maskType ==='cpf' ? Masks.BRL_CPF : Masks.BRL_CPF}
+        mask={maskType ==='phone' ? Masks.BRL_PHONE : maskType ==='cpf' ? Masks.BRL_CPF : maskType==='cep' ? Masks.ZIP_CODE : Masks.BRL_CPF}
           placeholder={placeholder}
           style={isFocus ? styles.inputFocus : styles.input}
           onFocus={handleFocus}

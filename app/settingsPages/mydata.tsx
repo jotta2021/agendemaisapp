@@ -1,13 +1,26 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TextInput, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TextInput,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  TouchableOpacity,
+} from "react-native";
 import { context } from "../_contexts";
 import api from "../hooks/apiService";
 import { Toast } from "react-native-toast-notifications";
 import InputComponent from "../_components/InputComponent";
 import colors from "@/assets/colors";
 import ButtonComponent from "../_components/buttonComponent";
+import ImageIcon from 'react-native-vector-icons/Ionicons'
+import * as ImagePicker from 'expo-image-picker';
+import { formToJSON } from "axios";
+import InputMasKComponent from "../_components/InputMaskComponent";
 
-// import { Container } from './styles';
 interface enterprise {
   name_enterprise: string;
   description: string;
@@ -18,9 +31,11 @@ interface enterprise {
   adress: string;
   number: string;
   name_user: string;
-  color_header:string;
-  img_profile:string
-  banner:string
+  color_header: string;
+  img_profile: string;
+  banner: string;
+  cep:string
+  id:string
 }
 const MyData = () => {
   const { user, setUser } = useContext(context);
@@ -34,9 +49,11 @@ const MyData = () => {
     adress: "",
     number: "",
     name_user: "",
-    color_header:"#fff",
-    img_profile:"",
-    banner:''
+    color_header: "#fff",
+    img_profile: "",
+    banner: "",
+    cep:'',
+    id: ''
   });
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -45,18 +62,19 @@ const MyData = () => {
   const [phone, setPhone] = useState("");
   const [nameEnterprise, setNameEnterprise] = useState("");
   const [description, setDescription] = useState("");
-  const [color_header,setColor_header] =useState('')
-  const [img_profile,setImg_profile] =useState('')
-  const [banner,setBanner] =useState('')
+  const [color_header, setColor_header] = useState("");
+  const [img_profile, setImg_profile] = useState("");
+  const [banner, setBanner] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [address, setAdress] = useState("");
   const [district, setDistrict] = useState("");
   const [number, setNumber] = useState("");
-  
+const [cep,setCep] = useState('')
   //image files
-  const [profileFile,setProfileFile] = useState(null)
-  const [banneFile,setBannerFile] = useState(null)
+  const [profileFile, setProfileFile] = useState<string| null>(null);
+  const [banneFile, setBannerFile] = useState<string| null>(null);
+const [loadingButton,setLoadingButton] = useState(false)
   async function getData() {
     setLoading(true);
     await api
@@ -74,9 +92,10 @@ const MyData = () => {
         setCity(data?.city);
         setAdress(data?.adress);
         setNumber(data?.number);
-        setColor_header(data?.color_header)
-        setImg_profile(data?.img_profile)
-        setBanner(data?.banner)
+        setColor_header(data?.color_header);
+        setImg_profile(data?.img_profile);
+        setBanner(data?.banner);
+        setCep(data?.cep)
       })
       .catch((error) => {
         setLoading(false);
@@ -87,98 +106,217 @@ const MyData = () => {
   useEffect(() => {
     getData();
   }, []);
-  
+
+
+  //pedir a permissao para acessar a galeria do celular
+  const pickImage = async (type:string) => {
+    // o type informa se é a imagem para o perfil ou banner
+    
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+ 
+
+    if (!result.canceled) {
+      if(type==='banner'){
+        setBannerFile(result.assets[0].uri)
+      }else{
+        setProfileFile(result.assets[0].uri)
+      }
+   
+    }
+  };
+
+
+
+
+async function UpdateData() {
+  const formdata = new FormData();
+setLoadingButton(true)
+  const dataApi = {
+    "id": data.id,
+    "name_enterprise": nameEnterprise,
+    "description": description,
+    "cnpj_cpf": cpf,
+    "phone": phone,
+    "name_user": name,
+    "adress": address,
+    "color_header": color_header,
+    "banner": banneFile ? banneFile : banner,
+    "img_profile": profileFile ? profileFile : img_profile,
+    "city": city,
+    "state": state,
+    "district": district,
+    "number": number,
+    "latitude": null,
+    "longitude": null
+  };
+
+  // Verificando se o campo img_profile ou banner é um objeto de arquivo
+  if (profileFile ) {
+    const uri = profileFile;
+
+    // Pegando o tipo do arquivo e criando um objeto File
+    const fileType = uri.split('.').pop(); // Pegando a extensão do arquivo
+    const fileName = `profile.${fileType}`;
+
+    // Convertendo o URI em um objeto File
+    const file = {
+      uri: uri,
+      name: fileName,
+      type: `image/${fileType}`,
+    };
+
+    // Adicionando a imagem ao FormData
+    formdata.append('img_profile', file);
+  }
+
+  if (banneFile ) {
+    const uri = banneFile;
+
+    // Pegando o tipo do arquivo e criando um objeto File
+    const fileType = uri.split('.').pop(); // Pegando a extensão do arquivo
+    const fileName = `banner.${fileType}`;
+
+    // Convertendo o URI em um objeto File
+    const file = {
+      uri: uri,
+      name: fileName,
+      type: `image/${fileType}`,
+    };
+
+    // Adicionando a imagem ao FormData
+    formdata.append('banner', file);
+  }
+
+  // Adicionando outros dados ao FormData
+  Object.entries(dataApi).forEach(([key, value]) => {
+    if (value !== null && value !== undefined && key !== 'img_profile' && key !== 'banner') {
+      formdata.append(key, value);
+    }
+  });
+
+  console.log([...formdata]);
+
+  try {
+    const res = await api.put('/enterprise/update', formdata, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "Accept": "application/json",
+      },
+    });
+    setLoadingButton(false)
+    Toast.show("Dados atualizados", { type: 'success' });
+  } catch (error) {
+    setLoadingButton(false)
+    console.log('Erro da API:', error.response ? error.response.data : error);
+    Toast.show(`Erro ao atualizar dados: ${error.message}`, { type: 'danger' });
+  }
+}
+
   return (
     <KeyboardAvoidingView behavior="height">
-      <TouchableWithoutFeedback onPress={()=> Keyboard.dismiss()}>
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.card}>
-          <Text style={styles.titleCard}>Sua loja</Text>
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <ScrollView style={styles.container}>
+          <View style={styles.content}>
+            <View style={styles.card}>
+              <Text style={styles.titleCard}>Sua loja</Text>
 
-          <View style={styles.containerInputs}>
-            <InputComponent
-              label="Nome"
-              value={nameEnterprise}
-              setValue={setNameEnterprise}
-              placeholder="Nome da sua loja"
-            />
-            <InputComponent
-              label="Descrição"
-              value={description}
-              setValue={setDescription}
-              placeholder="Descrição da sua loja"
-            />
-              <InputComponent
-              label="Cor do topo"
-              value={color_header}
-              setValue={setColor_header}
-              placeholder="Cor do topo da loja "
-            />
-            <View style={styles.imagePicker}>
-              <Text>Selecionar imagem</Text>
+              <View style={styles.containerInputs}>
+                <InputComponent
+                  label="Nome"
+                  value={nameEnterprise}
+                  setValue={setNameEnterprise}
+                  placeholder="Nome da sua loja"
+                />
+                <InputComponent
+                  label="Descrição"
+                  value={description}
+                  setValue={setDescription}
+                  placeholder="Descrição da sua loja"
+                />
+                <InputComponent
+                  label="Cor do topo"
+                  value={color_header}
+                  setValue={setColor_header}
+                  placeholder="Cor do topo da loja "
+                />
+                <TouchableOpacity style={styles.imagePicker}
+                onPress={()=> pickImage('profile')}
+                >
+                  <ImageIcon name="image" size={24} color={colors.primary}/>
+                  <Text>Selecionar imagem de perfil</Text>
+                </TouchableOpacity>
+                {
+                  data.img_profile &&
+                  <Text style={styles.imageSend}>Você já enviou uma imagem</Text>
+                }
+                
+
+                <TouchableOpacity style={styles.imagePicker}
+                  onPress={()=> pickImage('banner')}
+                >
+                  <ImageIcon name="image" size={24} color={colors.primary}/>
+                  <Text>Selecionar Banner</Text>
+                </TouchableOpacity>
+                {
+                  data.banner &&
+                  <Text style={styles.imageSend}>Você já enviou uma imagem</Text>
+                }
+              </View>
             </View>
-              <InputComponent
-              label="Imagem de perfil"
-              value={img_profile}
-              setValue={setImg_profile}
-              placeholder="Imagem de perfil da loja"
-            />
-            <InputComponent
-              label="Banner"
-              value={img_profile}
-              setValue={setImg_profile}
-              placeholder="Imagem de banner da loja"
-            />
-          </View>
-        </View>
 
-        <View style={styles.card}>
-          <Text style={styles.titleCard}>Endereço</Text>
+            <View style={styles.card}>
+              <Text style={styles.titleCard}>Endereço</Text>
 
-          <View style={styles.containerInputs}>
-            <InputComponent
-              label="Endereço"
-              value={address}
-              setValue={setAdress}
-              placeholder="Endereço"
-            />
-            <InputComponent
-              label="Bairro"
-              value={district}
-              setValue={setDistrict}
-              placeholder="Bairro"
-            />
-              <InputComponent
-              label="Número"
-              value={number}
-              setValue={setNumber}
-              placeholder="Informe o número do estabelecimento "
-            />
-             <InputComponent
-              label="CEP"
-              value={city}
-              setValue={setCity}
-              placeholder="Informe a CEP"
-            />
-              <InputComponent
-              label="Cidade"
-              value={city}
-              setValue={setCity}
-              placeholder="Informe a cidade"
-            />
-            <InputComponent
-              label="Estado"
-              value={state}
-              setValue={setState}
-              placeholder="Informe o estado"
-            />
+              <View style={styles.containerInputs}>
+                <InputComponent
+                  label="Endereço"
+                  value={address}
+                  setValue={setAdress}
+                  placeholder="Endereço"
+                />
+                <InputComponent
+                  label="Bairro"
+                  value={district}
+                  setValue={setDistrict}
+                  placeholder="Bairro"
+                />
+                <InputComponent
+                  label="Número"
+                  value={number}
+                  setValue={setNumber}
+                  placeholder="Informe o número do estabelecimento "
+                />
+                <InputMasKComponent
+                maskType="cep"
+                  label="CEP"
+                  value={cep}
+                  setValue={setCep}
+                  placeholder="Informe a CEP"
+                />
+                <InputComponent
+                  label="Cidade"
+                  value={city}
+                  setValue={setCity}
+                  placeholder="Informe a cidade"
+                />
+                <InputComponent
+                  label="Estado"
+                  value={state}
+                  setValue={setState}
+                  placeholder="Informe o estado"
+                />
+              </View>
+            </View>
+            <ButtonComponent onPress={UpdateData} title='confirmar' loading={loadingButton} />
           </View>
-        </View>
-        <ButtonComponent/>
-      </View>
-    </ScrollView>
-    </TouchableWithoutFeedback>
+        </ScrollView>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 };
@@ -188,9 +326,9 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 10,
     paddingTop: 10,
-    gap:14,
-    paddingBottom:30,
-    flexGrow:1
+    gap: 14,
+    paddingBottom: 80,
+flex:1
   },
   card: {
     backgroundColor: "white",
@@ -206,10 +344,16 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     gap: 10,
   },
-  imagePicker:{
-    backgroundColor:colors.light,
-    paddingVertical:10, 
-    borderRadius:10
+  imagePicker: {
+    backgroundColor: colors.light,
+    borderRadius: 10,
+    padding: 10,
+    flexDirection:'row',
+    gap:4,
+    alignItems:'center'
+  },
+  imageSend:{
+    color:colors.primary
   }
 });
 
