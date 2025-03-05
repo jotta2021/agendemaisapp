@@ -85,7 +85,9 @@ const Profile: React.FC = () => {
 
           <Text style={styles.title}>CONFIGURAÇÃO</Text>
 
-          <TouchableOpacity>
+          <TouchableOpacity
+          onPress={() => router.push("/settingsPages/security")}
+          >
             <Text style={styles.option}>Segurança</Text>
           </TouchableOpacity>
 

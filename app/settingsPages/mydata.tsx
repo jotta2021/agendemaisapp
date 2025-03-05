@@ -90,12 +90,15 @@ const [loadingButton,setLoadingButton] = useState(false)
         setCpf(data?.cnpj_cpf);
         setDistrict(data?.district);
         setCity(data?.city);
+        setState(data?.state)
         setAdress(data?.adress);
         setNumber(data?.number);
         setColor_header(data?.color_header);
         setImg_profile(data?.img_profile);
         setBanner(data?.banner);
         setCep(data?.cep)
+       
+       
       })
       .catch((error) => {
         setLoading(false);
@@ -153,7 +156,8 @@ setLoadingButton(true)
     "district": district,
     "number": number,
     "latitude": null,
-    "longitude": null
+    "longitude": null,
+   // "cep":cep
   };
 
   // Verificando se o campo img_profile ou banner é um objeto de arquivo
@@ -211,11 +215,18 @@ setLoadingButton(true)
     });
     setLoadingButton(false)
     Toast.show("Dados atualizados", { type: 'success' });
-  } catch (error) {
-    setLoadingButton(false)
-    console.log('Erro da API:', error.response ? error.response.data : error);
-    Toast.show(`Erro ao atualizar dados: ${error.message}`, { type: 'danger' });
+  } catch (error: unknown) {
+    setLoadingButton(false);
+  
+    if (error instanceof Error) {
+      console.log('Erro da API:', (error as any).response?.data || error.message);
+      Toast.show(`Erro ao atualizar dados: ${error.message}`, { type: 'danger' });
+    } else {
+      console.log('Erro desconhecido:', error);
+      Toast.show('Ocorreu um erro inesperado.', { type: 'danger' });
+    }
   }
+  
 }
 
   return (
@@ -311,6 +322,28 @@ setLoadingButton(true)
                   setValue={setState}
                   placeholder="Informe o estado"
                 />
+              </View>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.titleCard}>Dados de usuário</Text>
+
+              <View style={styles.containerInputs}>
+                <InputComponent
+                  label="Nome"
+                  value={name}
+                  setValue={setName}
+                  placeholder="Nome"
+                />
+               
+                <InputMasKComponent
+                maskType="cpf"
+                  label="CPF/CNPJ"
+                  value={cpf}
+                  setValue={setCpf}
+                  placeholder="Informe a CEP"
+                />
+              
+           
               </View>
             </View>
             <ButtonComponent onPress={UpdateData} title='confirmar' loading={loadingButton} />

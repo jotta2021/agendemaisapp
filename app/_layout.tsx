@@ -48,6 +48,17 @@ export default function RootLayout() {
               headerTintColor: "white",
             }}
           />
+           <Stack.Screen
+            name="settingsPages/security"
+            options={{
+              title: "Segurança",
+              headerBackTitle: "Voltar",
+              headerStyle: {
+                backgroundColor: colors.primary,
+              },
+              headerTintColor: "white",
+            }}
+          />
         </Stack>
       </ToastProvider>
     </Contexts>
