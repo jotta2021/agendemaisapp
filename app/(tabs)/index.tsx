@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  Dimensions,
 } from "react-native";
 import ButtonComponent from "../_components/buttonComponent";
 import { FAB, Switch } from "@rneui/themed";
@@ -143,6 +144,7 @@ const Services = () => {
     </SafeAreaView>
   );
 };
+const width = Dimensions.get("window").width;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -184,7 +186,7 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Regular",
     color: "grey",
     flexWrap:'wrap',
-    width:250
+    width:width*0.6
   },
   time: {
     fontFamily: "Poppins-Regular",
@@ -204,7 +206,8 @@ const styles = StyleSheet.create({
   containerValue:{
     flexDirection:'row',
     alignItems:'center',
-    justifyContent:'space-between'
+    justifyContent:'space-between',
+    marginTop:6
   },
   value:{
 backgroundColor:colors.primary,

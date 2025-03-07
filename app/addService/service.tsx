@@ -164,14 +164,14 @@ const [image,setImage] = useState('')
   console.log(imageFile)
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+     
         <ScrollView
           style={{ marginStart: 10, marginEnd: 10 }}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.content}>
             <View style={{ alignItems: "center" }}>
-              <TouchableOpacity style={styles.imageContainer} onPress={()=>pickImage()}>
+              <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
 {
   imageFile &&
   <Image
@@ -248,7 +248,7 @@ const [image,setImage] = useState('')
             </View>
           </View>
         </ScrollView>
-      </TouchableWithoutFeedback>
+      
     </KeyboardAvoidingView>
   );
 };
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   content: {
     paddingTop: 10,
     gap: 10,
-    paddingBottom: 50,
+    paddingBottom: 80,
   },
   imageContainer: {
     width: width * 0.9,
