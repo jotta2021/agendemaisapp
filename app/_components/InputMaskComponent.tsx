@@ -50,7 +50,7 @@ const InputMasKComponent = ({
       <Text style={styles.label}>{label}</Text>
       <View style={styles.containerInput}>
         <MaskInput
-        mask={maskType ==='phone' ? Masks.BRL_PHONE : maskType ==='cpf' ? Masks.BRL_CPF : maskType==='cep' ? Masks.ZIP_CODE : Masks.BRL_CPF}
+        mask={maskType ==='phone' ? Masks.BRL_PHONE : maskType ==='cpf' ? Masks.BRL_CPF : maskType==='cep' ? Masks.ZIP_CODE : maskType==='currency' ? Masks.BRL_CURRENCY : Masks.BRL_CPF}
           placeholder={placeholder}
           style={isFocus ? styles.inputFocus : styles.input}
           onFocus={handleFocus}

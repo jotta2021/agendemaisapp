@@ -3,6 +3,7 @@ import { Tabs } from "expo-router";
 import { View } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import Cleaning from 'react-native-vector-icons/MaterialIcons'
 const LayoutHome = () => {
   return (
     <Tabs
@@ -14,9 +15,9 @@ const LayoutHome = () => {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Principal",
+          title: "Serviços",
           tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="home" color={color} />
+            <Cleaning size={28} name="cleaning-services" color={color} />
           ),
         }}
       />
@@ -29,14 +30,7 @@ const LayoutHome = () => {
           ),
         }}
       />
-      <Tabs.Screen
-        name="cadastro"
-        options={{
-          title: "Cadastros",
-          tabBarLabel: "",
-          tabBarIcon: ({ color, size }) => <ButtonNew size={size} />,
-        }}
-      />
+     
       <Tabs.Screen
         name="myLoja"
         options={{
@@ -59,26 +53,5 @@ const LayoutHome = () => {
   );
 };
 
-function ButtonNew({ size }: { size: number }) {
-  return (
-    <View
-      style={{
-        backgroundColor: colors.primary,
-        width: 60,
-        height: 60,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 60,
-        marginBottom: 20,
-      }}
-    >
-      <Ionicons size={size} name="add" color="white" />
-    </View>
-  );
-}
 
-/**
- *
- *
- */
 export default LayoutHome;
