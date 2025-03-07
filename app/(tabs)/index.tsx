@@ -30,7 +30,7 @@ type Service = {
   name: string;
   status: boolean;
   time: string;
-  image:string
+  image: string;
 };
 const Services = () => {
   const { user } = useContext(context);
@@ -69,71 +69,70 @@ const Services = () => {
       <View style={styles.content}>
         <SearchBar />
 
-{
-  loading ?
-  <View style={{height:'90%',alignItems:'center', justifyContent:'center'}}>
-     <LoadingComponent /> 
-  </View>
- :
-<View>
-          <FlatList
-            data={services}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={styles.containerServices}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.service}>
-                <View style={styles.image}>
-                  <Image
-                  src={item.image}
-                  style={styles.image}
-                  />
-                </View>
-                <View>
-                  <Text style={styles.titleService}>{item.name}</Text>
-                  <Text style={styles.description}>{item.description}</Text>
-                  <Text style={styles.time}>{formatHour(item.time)}</Text>
-                  <View style={styles.containerValue}>
-                       <View
-                    style={
-                      item.status === true
-                        ? styles.status
-                        : styles.statusInactive
-                    }
-                  >
-                    
-                    <Text
-                      style={{
-                        color:
+        {loading ? (
+          <View
+            style={{
+              height: "90%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <LoadingComponent />
+          </View>
+        ) : (
+          <View>
+            <FlatList
+              data={services}
+              keyExtractor={(item, index) => index.toString()}
+              contentContainerStyle={styles.containerServices}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.service}>
+                  <View style={styles.image}>
+                    <Image src={item.image} style={styles.image} />
+                  </View>
+                  <View>
+                    <Text style={styles.titleService}>{item.name}</Text>
+                    <Text style={styles.description}>{item.description}</Text>
+                    <Text style={styles.time}>{formatHour(item.time)}</Text>
+                    <View style={styles.containerValue}>
+                      <View
+                        style={
                           item.status === true
-                            ? "#26ad2d"
-                            : "rgba(156,40,58,255)",
-                        fontFamily: "Poppins-Medium",
-                      }}
-                    >
-                      {item.status ===true? 'Ativo' : 'Inativo'}
-                    </Text>
-                  </View>
+                            ? styles.status
+                            : styles.statusInactive
+                        }
+                      >
+                        <Text
+                          style={{
+                            color:
+                              item.status === true
+                                ? "#26ad2d"
+                                : "rgba(156,40,58,255)",
+                            fontFamily: "Poppins-Medium",
+                          }}
+                        >
+                          {item.status === true ? "Ativo" : "Inativo"}
+                        </Text>
+                      </View>
 
-<View style={styles.value}>
-  <Text style={{color:'white'}}>
-                    {Number(item.value).toLocaleString('pt-BR',{currency:'BRL',style:'currency'})}
-                  </Text>
-</View>
-                  
+                      <View style={styles.value}>
+                        <Text style={{ color: "white" }}>
+                          {Number(item.value).toLocaleString("pt-BR", {
+                            currency: "BRL",
+                            style: "currency",
+                          })}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-               
-                </View>
-              </TouchableOpacity>
-            )}
-            refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={getServices} />
-            }
-          />
-        </View>
-}
-        
-       
-       
+                </TouchableOpacity>
+              )}
+              refreshControl={
+                <RefreshControl refreshing={loading} onRefresh={getServices} />
+              }
+            />
+          </View>
+        )}
       </View>
       <FAB
         icon={<Ionicons name="add" size={20} color={"white"} />}
@@ -185,8 +184,8 @@ const styles = StyleSheet.create({
   description: {
     fontFamily: "Poppins-Regular",
     color: "grey",
-    flexWrap:'wrap',
-    width:width*0.6
+    flexWrap: "wrap",
+    width: width * 0.6,
   },
   time: {
     fontFamily: "Poppins-Regular",
@@ -203,16 +202,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 80,
   },
-  containerValue:{
-    flexDirection:'row',
-    alignItems:'center',
-    justifyContent:'space-between',
-    marginTop:6
+  containerValue: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 6,
   },
-  value:{
-backgroundColor:colors.primary,
-borderRadius:10,
-padding:4
-  }
+  value: {
+    backgroundColor: colors.primary,
+    borderRadius: 10,
+    padding: 4,
+  },
 });
 export default Services;
