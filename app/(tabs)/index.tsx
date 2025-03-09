@@ -32,9 +32,15 @@ type Service = {
   time: string;
   image: string;
 };
+type Category = {
+  id: string;
+  name: string;
+};
 const Services = () => {
   const { user } = useContext(context);
   const [services, setServices] = useState<Service[]>([]);
+  const [categoriesList, setCategoriesList] = useState<Category[]>([]);
+  const [categorySelected, setCategorySelected] = useState<string>("");
   const [loading, setLoading] = useState(false);
   async function getServices() {
     setLoading(true);
@@ -49,10 +55,28 @@ const Services = () => {
         setLoading(false);
       });
   }
+  async function getCategories() {
+    await api
+      .get(`/categorieServiceAll?id_enterprise=${user && user.id}`)
+      .then((res) => {
+        const data = res.data;
+
+        setCategoriesList(data);
+      })
+      .catch((error) => {
+        Toast.show("Erro ao buscar categorias", { type: "danger" });
+      });
+  }
 
   useEffect(() => {
     getServices();
+    getCategories();
   }, []);
+
+
+  async function getProductsByCategory(){
+    
+  }
 
   function formatHour(timeString: string) {
     if (timeString) {
@@ -81,6 +105,43 @@ const Services = () => {
           </View>
         ) : (
           <View>
+            <FlatList
+              data={categoriesList}
+              keyExtractor={(item, index) => index.toString()}
+              contentContainerStyle={{
+                gap: 10,
+                paddingStart: 10,
+                paddingTop: 10,
+              }}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.categoryContainer,
+                    {
+                      backgroundColor:
+                        categorySelected === item.id
+                          ? colors.primary
+                          : colors["primary-light"],
+                    },
+                  ]}
+                  onPress={() => setCategorySelected(item.id)}
+                >
+                  <Text
+                    style={[
+                      styles.category,
+                      {
+                        color: categorySelected === item.id ? "white" : "black",
+                      },
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
             <FlatList
               data={services}
               keyExtractor={(item, index) => index.toString()}
@@ -212,6 +273,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 10,
     padding: 4,
+  },
+  categoryContainer: {
+    padding: 4,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  category: {
+    fontFamily: "Poppins-Regular",
+    fontSize: 12,
   },
 });
 export default Services;
