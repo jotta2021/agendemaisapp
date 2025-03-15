@@ -176,7 +176,7 @@ setLoadingButton(true)
     };
 
     // Adicionando a imagem ao FormData
-    formdata.append('img_profile', file);
+    formdata.append('img_profile', file as never);
   }
 
   if (banneFile ) {
@@ -194,7 +194,7 @@ setLoadingButton(true)
     };
 
     // Adicionando a imagem ao FormData
-    formdata.append('banner', file);
+    formdata.append('banner', file as never);
   }
 
   // Adicionando outros dados ao FormData

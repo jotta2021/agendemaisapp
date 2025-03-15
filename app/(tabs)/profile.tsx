@@ -51,7 +51,7 @@ const Profile: React.FC = () => {
       getData();
     }
   }, [user]);
-  console.log(data?.img_profile);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -82,6 +82,7 @@ const Profile: React.FC = () => {
           >
             <Text style={styles.option}>Meus Dados</Text>
           </TouchableOpacity>
+         
 
           <Text style={styles.title}>CONFIGURAÇÃO</Text>
 

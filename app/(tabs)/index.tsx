@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import ButtonComponent from "../_components/buttonComponent";
 import { FAB, Switch } from "@rneui/themed";
@@ -22,6 +23,7 @@ import { Toast } from "react-native-toast-notifications";
 import { parse, format } from "date-fns";
 import LoadingComponent from "../_components/LoadingComponent";
 import { Image } from "react-native";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 
 type Service = {
   id: string;
@@ -39,15 +41,34 @@ type Category = {
 const Services = () => {
   const { user } = useContext(context);
   const [services, setServices] = useState<Service[]>([]);
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [categoriesList, setCategoriesList] = useState<Category[]>([]);
   const [categorySelected, setCategorySelected] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ["40%"], []);
   async function getServices() {
     setLoading(true);
     await api
       .get(`/servicesByEnterprise?id_enterprise=${user?.id}`)
       .then((res) => {
         setServices(res.data);
+        setFilteredServices(res.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        Toast.show(`Erro ao buscar os serviços ${error?.response?.data}`);
+        setLoading(false);
+      });
+  }
+  async function getServicesByCategory() {
+    setLoading(true);
+    await api
+      .get(`/servicesByCategory?id_category=${categorySelected}`)
+      .then((res) => {
+        setServices(res.data);
+        setFilteredServices(res.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -73,27 +94,71 @@ const Services = () => {
     getCategories();
   }, []);
 
-
-  async function getProductsByCategory(){
-    
-  }
-
   function formatHour(timeString: string) {
-    if (timeString) {
-      const time = parse(timeString, "HH:mm:ss", new Date());
-      const minutes = time.getMinutes();
-      return `${minutes}min`;
+    if (!timeString) return "";
+  
+    const time = parse(timeString, "HH:mm:ss", new Date());
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+  
+    if (hours > 0 && minutes > 0) {
+      return `${hours}h${minutes}min`;
+    } else if (hours > 0) {
+      return `${hours}h`;
     } else {
-      return "";
+      return `${minutes}min`;
     }
   }
 
+  const handleClosePress = () => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.close();
+    }
+  };
+  const handleOpenPress = () => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand();
+    }
+  };
+
+  function SearchServices() {
+    if (search !== "") {
+      setLoading(true);
+      const searched = services.filter((item) =>
+        item.name.toUpperCase().includes(search.toUpperCase())
+      );
+      if (searched.length === 0) {
+        setFilteredServices([]);
+        setLoading(false);
+      }
+      setLoading(false);
+      setFilteredServices(searched);
+    } else {
+      setFilteredServices(services);
+    }
+  }
+  //sempre que digitar algo, e feito uma busca nos servicos
+  useEffect(() => {
+    SearchServices();
+  }, [search]);
+
+  //busca os servicos pela categoria
+  useEffect(() => {
+    if (categorySelected !== "") {
+      getServicesByCategory();
+    }
+  }, [categorySelected]);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <SearchBar />
+        <SearchBar
+          value={search}
+          setValue={setSearch}
+          openFilter={handleOpenPress}
+          filter={true}
+        />
 
-        {loading ? (
+        {loading && (
           <View
             style={{
               height: "90%",
@@ -103,8 +168,68 @@ const Services = () => {
           >
             <LoadingComponent />
           </View>
-        ) : (
-          <View>
+        )}
+
+        {!loading && (
+          <FlatList
+            data={filteredServices}
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={styles.containerServices}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.service}
+              onPress={()=> router.push(`/addService/${item.id}` as never)}
+              >
+                <View style={styles.image}>
+                  <Image src={item.image} style={styles.image} />
+                </View>
+                <View>
+                  <Text style={styles.titleService}>{item.name}</Text>
+                  <Text style={styles.description}>{item.description}</Text>
+                  <Text style={styles.time}>{formatHour(item.time)}</Text>
+                  <View style={styles.containerValue}>
+                    <View
+                      style={
+                        item.status === true
+                          ? styles.status
+                          : styles.statusInactive
+                      }
+                    >
+                      <Text
+                        style={{
+                          color:
+                            item.status === true
+                              ? "#26ad2d"
+                              : "rgba(156,40,58,255)",
+                          fontFamily: "Poppins-Medium",
+                        }}
+                      >
+                        {item.status === true ? "Ativo" : "Inativo"}
+                      </Text>
+                    </View>
+
+                    <View style={styles.value}>
+                      <Text style={{ color: "white" }}>
+                        {Number(item.value).toLocaleString("pt-BR", {
+                          currency: "BRL",
+                          style: "currency",
+                        })}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={getServices} />
+            }
+          />
+        )}
+      </View>
+      <BottomSheet snapPoints={snapPoints} index={-1} ref={bottomSheetRef}>
+        <BottomSheetView>
+          <View style={{ paddingHorizontal: 10 }}>
+            <Text style={styles.title}>Listar serviços por categoria</Text>
             <FlatList
               data={categoriesList}
               keyExtractor={(item, index) => index.toString()}
@@ -127,7 +252,10 @@ const Services = () => {
                           : colors["primary-light"],
                     },
                   ]}
-                  onPress={() => setCategorySelected(item.id)}
+                  onPress={() => {
+                    setCategorySelected(item.id);
+                    handleClosePress();
+                  }}
                 >
                   <Text
                     style={[
@@ -142,64 +270,31 @@ const Services = () => {
                 </TouchableOpacity>
               )}
             />
-            <FlatList
-              data={services}
-              keyExtractor={(item, index) => index.toString()}
-              contentContainerStyle={styles.containerServices}
-              renderItem={({ item }) => (
-                <TouchableOpacity style={styles.service}>
-                  <View style={styles.image}>
-                    <Image src={item.image} style={styles.image} />
-                  </View>
-                  <View>
-                    <Text style={styles.titleService}>{item.name}</Text>
-                    <Text style={styles.description}>{item.description}</Text>
-                    <Text style={styles.time}>{formatHour(item.time)}</Text>
-                    <View style={styles.containerValue}>
-                      <View
-                        style={
-                          item.status === true
-                            ? styles.status
-                            : styles.statusInactive
-                        }
-                      >
-                        <Text
-                          style={{
-                            color:
-                              item.status === true
-                                ? "#26ad2d"
-                                : "rgba(156,40,58,255)",
-                            fontFamily: "Poppins-Medium",
-                          }}
-                        >
-                          {item.status === true ? "Ativo" : "Inativo"}
-                        </Text>
-                      </View>
-
-                      <View style={styles.value}>
-                        <Text style={{ color: "white" }}>
-                          {Number(item.value).toLocaleString("pt-BR", {
-                            currency: "BRL",
-                            style: "currency",
-                          })}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              )}
-              refreshControl={
-                <RefreshControl refreshing={loading} onRefresh={getServices} />
-              }
-            />
+            {
+              categorySelected!=='' &&
+              <View style={{ alignItems: "center" }}>
+              <TouchableOpacity
+                style={styles.buttonRemove}
+                onPress={() => {
+                  setCategorySelected("");
+                  getServices();
+                  handleClosePress()
+                }}
+              >
+                <Text>Desmarcar categoria</Text>
+              </TouchableOpacity>
+            </View>
+            }
+            
           </View>
-        )}
-      </View>
+        </BottomSheetView>
+      </BottomSheet>
+
       <FAB
         icon={<Ionicons name="add" size={20} color={"white"} />}
         color={colors.primary}
         placement={"right"}
-        onPress={() => router.push("/addService/service")}
+        onPress={() => router.push('/addService/[id]')}
       />
     </SafeAreaView>
   );
@@ -215,6 +310,7 @@ const styles = StyleSheet.create({
   content: {
     paddingTop: 10,
     paddingHorizontal: 10,
+    flex: 1,
   },
   title: {
     fontFamily: "Poppins-Medium",
@@ -222,7 +318,6 @@ const styles = StyleSheet.create({
   },
   containerServices: {
     gap: 10,
-    marginTop: 20,
   },
   service: {
     backgroundColor: "#e6e6e6",
@@ -282,6 +377,14 @@ const styles = StyleSheet.create({
   category: {
     fontFamily: "Poppins-Regular",
     fontSize: 12,
+  },
+  buttonRemove: {
+    backgroundColor: colors["gray-medium"],
+    marginTop: 20,
+    padding: 10,
+    borderRadius: 20,
+    width: 200,
+    alignItems: "center",
   },
 });
 export default Services;

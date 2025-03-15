@@ -71,7 +71,18 @@ export default function RootLayout() {
             }}
           />
             <Stack.Screen
-            name="addCategory/category"
+            name="addService/[id]"
+            options={{
+              title: "Serviços",
+              headerBackTitle: "Voltar",
+              headerStyle: {
+                backgroundColor: colors.primary,
+              },
+              headerTintColor: "white",
+            }}
+          />
+            <Stack.Screen
+            name="addCategory/[id]"
             options={{
               title: "Categorias",
               headerBackTitle: "Voltar",
