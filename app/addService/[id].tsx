@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Image,
+  Switch,
 } from "react-native";
 import InputComponent from "../_components/InputComponent";
 import InputMasKComponent from "../_components/InputMaskComponent";
@@ -26,7 +27,7 @@ import Entypo from "react-native-vector-icons/Entypo";
 import * as ImagePicker from "expo-image-picker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format } from "date-fns";
-import{ptBR} from 'date-fns/locale'
+import { ptBR } from "date-fns/locale";
 type Category = {
   id: string;
   name: string;
@@ -38,7 +39,7 @@ type CategoryInSelect = {
 
 const addService = () => {
   const { id } = useLocalSearchParams();
-  console.log("id", id);
+
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -50,6 +51,7 @@ const addService = () => {
   const { user } = useContext(context);
   const [imageFile, setImageFile] = useState<string | null>(null);
   const [image, setImage] = useState("");
+  const [status, setStatus] = useState(false);
   const navigation = useNavigation();
 
   const showDatePicker = () => {
@@ -60,16 +62,37 @@ const addService = () => {
     setOpenTime(false);
   };
 
-  const handleConfirm = (date:Date) => {
-    const dateString  = format(date, 'HH:mm')
-    setTime(`${dateString}:00`)
+  const handleConfirm = (date: Date) => {
+    const dateString = format(date, "HH:mm");
+    setTime(`${dateString}:00`);
     hideDatePicker();
   };
+
+  async function getServiceById() {
+    await api
+      .get(`/serviceById?id_service=${id}`)
+      .then((res) => {
+        const data = res.data;
+        console.log(data);
+        setName(data.name);
+        setCategory(data.id_category);
+        setDescription(data.description);
+        setTime(data.time);
+        setValue(data.value);
+        setImage(data.image);
+        setStatus(data.status);
+      })
+      .catch((error) => {
+        Toast.show("Erro ao buscar serviço", { type: "danger" });
+        console.log(error);
+      });
+  }
 
   useEffect(() => {
     navigation.setOptions({
       title: id !== "[id]" ? "Atualizar Serviço" : "Adicionar Serviço",
     });
+    getServiceById();
   }, [id]);
 
   async function getCategories() {
@@ -108,11 +131,12 @@ const addService = () => {
     }
   };
 
-  async function addService() {
+  async function updateService() {
     if (name !== "" && value !== "" && time !== "" && category !== "") {
       try {
         setLoading(true);
         const data = {
+          id: id,
           name: name,
           description: description,
           value: formatCurrencyToNumber(value),
@@ -120,7 +144,9 @@ const addService = () => {
           id_category: category,
           id_enterprise: user?.id,
           image: "",
+          status: status
         };
+        console.log(data);
         const formdata = new FormData();
         Object.entries(data).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
@@ -144,15 +170,17 @@ const addService = () => {
 
           // Adicionando a imagem ao FormData
           formdata.append("image", file as never);
+        } else {
+          formdata.append("image", image);
         }
 
-        await api.post("/service", formdata, {
+        await api.put("/service/update", formdata, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
         setLoading(false);
-        Toast.show("Serviço adicionado", { type: "success" });
+        Toast.show("Serviço atualizado", { type: "success" });
         setCategory("");
         setDescription("");
         setName("");
@@ -164,7 +192,7 @@ const addService = () => {
         setLoading(false);
         const axiosError = error as AxiosError;
         console.log(axiosError);
-        Toast.show(`Erro ao adicionar serviço ${axiosError?.response?.data}`, {
+        Toast.show(`Erro ao atualizar serviço ${axiosError?.response?.data}`, {
           type: "danger",
         });
       }
@@ -181,7 +209,6 @@ const addService = () => {
     );
   };
 
-  console.log(imageFile);
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
       <ScrollView
@@ -193,6 +220,9 @@ const addService = () => {
             <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
               {imageFile && (
                 <Image source={{ uri: imageFile }} style={styles.image} />
+              )}
+              {image !== "" && !imageFile && (
+                <Image source={{ uri: image }} style={styles.image} />
               )}
 
               <Entypo name="camera" color={colors.primary} size={40} />
@@ -242,17 +272,24 @@ const addService = () => {
           />
 
           <Text style={styles.label}>Tempo estimado</Text>
-          <TouchableOpacity style={{backgroundColor:'white', borderRadius:10 ,padding:14,borderWidth:0.2,borderColor:'grey'}}
-          onPress={showDatePicker}
+          <TouchableOpacity
+            style={{
+              backgroundColor: "white",
+              borderRadius: 10,
+              padding: 14,
+              borderWidth: 0.2,
+              borderColor: "grey",
+            }}
+            onPress={showDatePicker}
           >
             <Text>{time}</Text>
           </TouchableOpacity>
-          
+
           <DateTimePickerModal
             isVisible={openTime}
             mode="time"
             onConfirm={handleConfirm}
-            locale={'pt_BR'}
+            locale={"pt_BR"}
             onCancel={hideDatePicker}
           />
 
@@ -263,10 +300,20 @@ const addService = () => {
             value={value}
             setValue={setValue}
           />
+          <View style={styles.containerSwitch}>
+            <Text>Ativo</Text>
+            <Switch
+              value={status}
+              onValueChange={setStatus}
+              trackColor={{ false: "#767577", true: colors.primary }}
+              thumbColor={status ? colors.primary : "#f4f3f4"}
+            />
+          </View>
+
           <View style={styles.containerButton}>
             <ButtonComponent
               title="Salvar"
-              onPress={addService}
+              onPress={updateService}
               loading={loading}
             />
           </View>
@@ -353,5 +400,11 @@ const styles = StyleSheet.create({
   containerButton: {
     marginTop: 20,
   },
+containerSwitch:{
+    flexDirection:'row',
+    justifyContent:'flex-start',
+    alignItems:'center'	,
+    gap:10
+}
 });
 export default addService;
