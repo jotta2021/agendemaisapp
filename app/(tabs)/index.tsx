@@ -15,6 +15,7 @@ import ButtonComponent from "../_components/buttonComponent";
 import { FAB, Switch } from "@rneui/themed";
 import colors from "@/assets/colors";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import Feather from "react-native-vector-icons/Feather";
 import SearchBar from "../_components/SearchBar";
 import { router } from "expo-router";
 import api from "../hooks/apiService";
@@ -232,7 +233,15 @@ const Services = () => {
       <BottomSheet snapPoints={snapPoints} index={-1} ref={bottomSheetRef}>
         <BottomSheetView>
           <View style={{ paddingHorizontal: 10 }}>
-            <Text style={styles.title}>Listar serviços por categoria</Text>
+            <View style={{flexDirection:'row', justifyContent:'space-between',alignItems:'flex-start',paddingHorizontal:10}}>
+                <Text style={styles.title}>Listar serviços por categoria</Text>
+            <TouchableOpacity style={{backgroundColor:colors.light, borderRadius:30, width:30, height:30, alignItems:'center', justifyContent:'center'}}
+            onPress={handleClosePress}
+            >
+<Feather name="x" size={24}/>
+            </TouchableOpacity>
+            </View>
+          
             <FlatList
               data={categoriesList}
               keyExtractor={(item, index) => index.toString()}

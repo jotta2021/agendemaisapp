@@ -1,5 +1,5 @@
 import colors from "@/assets/colors";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -7,10 +7,12 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import { context } from "../_contexts";
 import api from "../hooks/apiService";
 import { Toast } from "react-native-toast-notifications";
+import { useFocusEffect } from "expo-router";
 
 interface enterprise {
   name_enterprise: string;
@@ -79,15 +81,24 @@ const MyLoja: React.FC = () => {
       });
   }
 
-  useEffect(() => {
-    getData();
-    getCategories();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getData();
+      getCategories();
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.containerProfile}></View>
+      <View style={[styles.header, { backgroundColor: data.color_header }]}>
+        <View style={styles.containerProfile}>
+          <Image
+            source={{ uri: data.img_profile }}
+            width={150}
+            height={150}
+            style={{ borderRadius: 150, objectFit: "contain" }}
+          />
+        </View>
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>{data.name_enterprise}</Text>
@@ -95,47 +106,44 @@ const MyLoja: React.FC = () => {
 
         <View style={styles.dataContent}>
           <Text style={styles.titleServices}>Serviços</Text>
-          
-            <FlatList
-              data={categories}
-              keyExtractor={(item, index) => index.toString()}
-              contentContainerStyle={{
-                gap: 10,
-                paddingStart: 10,
-                paddingTop: 10,
-              }}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  key={item.id}
+
+          <FlatList
+            data={categories}
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={{
+              gap: 10,
+              paddingStart: 10,
+              paddingTop: 10,
+            }}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                key={item.id}
+                style={[
+                  styles.categoryContainer,
+                  {
+                    backgroundColor:
+                      categorySelected === item.id ? colors.gray : colors.light,
+                  },
+                ]}
+                onPress={() => {
+                  setCategorySelected(item.id);
+                }}
+              >
+                <Text
                   style={[
-                    styles.categoryContainer,
+                    styles.category,
                     {
-                      backgroundColor:
-                        categorySelected === item.id
-                          ? colors.primary
-                          : colors["primary-light"],
+                      color: categorySelected === item.id ? "white" : "black",
                     },
                   ]}
-                  onPress={() => {
-                    setCategorySelected(item.id);
-                  }}
                 >
-                  <Text
-                    style={[
-                      styles.category,
-                      {
-                        color: categorySelected === item.id ? "white" : "black",
-                      },
-                    ]}
-                  >
-                    {item.name}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-          
+                  {item.name}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
         </View>
       </View>
     </View>
@@ -148,7 +156,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: colors["primary-light"],
-    height: height * 0.3,
+    height: height * 0.2,
     alignItems: "center",
   },
   containerProfile: {
@@ -161,10 +169,10 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 10,
-    paddingTop: 10,
+    paddingTop: 60,
   },
   title: {
-    fontFamily: "Poppins-Bold",
+    fontFamily: "Poppins-Medium",
     textAlign: "center",
     fontSize: 18,
     color: colors.gray,
@@ -173,6 +181,7 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Regular",
     textAlign: "center",
     color: colors.gray,
+    fontSize: 12,
   },
   dataContent: {
     alignItems: "flex-start",
@@ -180,9 +189,9 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   titleServices: {
-    fontFamily: "Poppins-Bold",
-    fontSize: 16,
-    color: colors.primary,
+    fontFamily: "Poppins-Medium",
+    fontSize: 14,
+    color: colors.gray,
   },
   categoryContainer: {
     padding: 4,

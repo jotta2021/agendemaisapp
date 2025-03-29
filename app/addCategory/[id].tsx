@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
   },
   categoryContainer: {
     alignItems: "flex-start",
+    gap:6
   },
   containerSwitch: {
     flexDirection: "row",

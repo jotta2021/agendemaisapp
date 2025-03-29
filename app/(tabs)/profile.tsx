@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -13,7 +13,7 @@ import { Toast } from "react-native-toast-notifications";
 import User from "react-native-vector-icons/FontAwesome";
 import colors from "@/assets/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import RefreshIcon from "react-native-vector-icons/Feather";
 const Profile: React.FC = () => {
   const { user, setUser } = useContext(context);
@@ -46,11 +46,13 @@ const Profile: React.FC = () => {
     router.push("/initial");
   }
 
-  useEffect(() => {
-    if (user) {
-      getData();
-    }
-  }, [user]);
+  useFocusEffect(
+    useCallback(()=> {
+      if (user) {
+        getData();
+      }
+    },[user])
+  )
 
   return (
     <SafeAreaView style={styles.container}>
@@ -68,9 +70,7 @@ const Profile: React.FC = () => {
           )}
           <Text style={styles.text}>{data?.name_user}</Text>
         </View>
-        <TouchableOpacity onPress={getData}>
-          <RefreshIcon name="refresh-cw" size={24} color={"white"} />
-        </TouchableOpacity>
+      
         
       </View>
       <View style={styles.content}>
