@@ -65,7 +65,7 @@ const [image,setImage] = useState('')
   }, []);
 
  //pedir a permissao para acessar a galeria do celular
-  const pickImage = async (type:string) => {
+  const pickImage = async () => {
     // o type informa se é a imagem para o perfil ou banner
     
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -122,7 +122,7 @@ const [image,setImage] = useState('')
           };
       
           // Adicionando a imagem ao FormData
-          formdata.append('image', file);
+          formdata.append('image', file as never);
         }
       
 

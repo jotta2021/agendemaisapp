@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Cleaning from 'react-native-vector-icons/MaterialIcons'
+
 const LayoutHome = () => {
   return (
     <GestureHandlerRootView>
@@ -28,7 +29,7 @@ const LayoutHome = () => {
         options={{
           title: "Categorias",
           tabBarIcon: ({ color }) => (
-            <Cleaning size={28} name="cleaning-services" color={color} />
+            <FontAwesome size={28} name="sticky-note-o" color={color} />
           ),
         }}
       />

@@ -28,6 +28,8 @@ import * as ImagePicker from "expo-image-picker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import LoadingComponent from "../_components/LoadingComponent";
+
 type Category = {
   id: string;
   name: string;
@@ -69,6 +71,7 @@ const addService = () => {
   };
 
   async function getServiceById() {
+    setLoading(true)
     await api
       .get(`/serviceById?id_service=${id}`)
       .then((res) => {
@@ -81,9 +84,11 @@ const addService = () => {
         setValue(data.value);
         setImage(data.image);
         setStatus(data.status);
+        setLoading(false)
       })
       .catch((error) => {
         Toast.show("Erro ao buscar serviço", { type: "danger" });
+        setLoading(false)
         console.log(error);
       });
   }
@@ -211,114 +216,124 @@ const addService = () => {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
+    {
+      loading  ?
+      <View style={{height:'100%', justifyContent:'center', alignItems:'center'}}>
+         <LoadingComponent  />
+      </View>
+      :
+      
+
       <ScrollView
-        style={{ marginStart: 10, marginEnd: 10 }}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.content}>
-          <View style={{ alignItems: "center" }}>
-            <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
-              {imageFile && (
-                <Image source={{ uri: imageFile }} style={styles.image} />
-              )}
-              {image !== "" && !imageFile && (
-                <Image source={{ uri: image }} style={styles.image} />
-              )}
+      style={{ marginStart: 10, marginEnd: 10 }}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.content}>
+        <View style={{ alignItems: "center" }}>
+          <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
+            {imageFile && (
+              <Image source={{ uri: imageFile }} style={styles.image} />
+            )}
+            {image !== "" && !imageFile && (
+              <Image source={{ uri: image }} style={styles.image} />
+            )}
 
-              <Entypo name="camera" color={colors.primary} size={40} />
-              <Text style={{ color: colors.primary }}>Selecionar imagem</Text>
-            </TouchableOpacity>
-          </View>
-
-          <InputComponent
-            label="Nome"
-            placeholder="Informe qual o serviço"
-            value={name}
-            setValue={setName}
-          />
-          <Text style={styles.label}>Categoria</Text>
-          <View>
-            <Dropdown
-              style={styles.dropdown}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              iconStyle={styles.iconStyle}
-              data={categorisesList}
-              search
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="selecionar categoria"
-              searchPlaceholder="Buscar categoria..."
-              value={category}
-              onChange={(item) => {
-                setCategory(item.value);
-              }}
-              renderItem={renderItem}
-            />
-            <TouchableOpacity
-              onPress={() => router.push("/addCategory/category")}
-            >
-              <Text style={{ color: colors.primary }}>Nova categoria</Text>
-            </TouchableOpacity>
-          </View>
-
-          <InputComponent
-            label="Descrição"
-            placeholder="Descreva o serviço"
-            value={description}
-            setValue={setDescription}
-          />
-
-          <Text style={styles.label}>Tempo estimado</Text>
-          <TouchableOpacity
-            style={{
-              backgroundColor: "white",
-              borderRadius: 10,
-              padding: 14,
-              borderWidth: 0.2,
-              borderColor: "grey",
-            }}
-            onPress={showDatePicker}
-          >
-            <Text>{time}</Text>
+            <Entypo name="camera" color={colors.primary} size={40} />
+            <Text style={{ color: colors.primary }}>Selecionar imagem</Text>
           </TouchableOpacity>
-
-          <DateTimePickerModal
-            isVisible={openTime}
-            mode="time"
-            onConfirm={handleConfirm}
-            locale={"pt_BR"}
-            onCancel={hideDatePicker}
-          />
-
-          <InputMasKComponent
-            label="Valor"
-            maskType="currency"
-            placeholder="Informe o valor do serviço"
-            value={value}
-            setValue={setValue}
-          />
-          <View style={styles.containerSwitch}>
-            <Text>Ativo</Text>
-            <Switch
-              value={status}
-              onValueChange={setStatus}
-              trackColor={{ false: "#767577", true: colors.primary }}
-              thumbColor={status ? colors.primary : "#f4f3f4"}
-            />
-          </View>
-
-          <View style={styles.containerButton}>
-            <ButtonComponent
-              title="Salvar"
-              onPress={updateService}
-              loading={loading}
-            />
-          </View>
         </View>
-      </ScrollView>
+
+        <InputComponent
+          label="Nome"
+          placeholder="Informe qual o serviço"
+          value={name}
+          setValue={setName}
+        />
+        <Text style={styles.label}>Categoria</Text>
+        <View>
+          <Dropdown
+            style={styles.dropdown}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            inputSearchStyle={styles.inputSearchStyle}
+            iconStyle={styles.iconStyle}
+            data={categorisesList}
+            search
+            maxHeight={300}
+            labelField="label"
+            valueField="value"
+            placeholder="selecionar categoria"
+            searchPlaceholder="Buscar categoria..."
+            value={category}
+            onChange={(item) => {
+              setCategory(item.value);
+            }}
+            renderItem={renderItem}
+          />
+          <TouchableOpacity
+            onPress={() => router.push("/addCategory/category")}
+          >
+            <Text style={{ color: colors.primary }}>Nova categoria</Text>
+          </TouchableOpacity>
+        </View>
+
+        <InputComponent
+          label="Descrição"
+          placeholder="Descreva o serviço"
+          value={description}
+          setValue={setDescription}
+        />
+
+        <Text style={styles.label}>Tempo estimado</Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: "white",
+            borderRadius: 10,
+            padding: 14,
+            borderWidth: 0.2,
+            borderColor: "grey",
+          }}
+          onPress={showDatePicker}
+        >
+          <Text>{time}</Text>
+        </TouchableOpacity>
+
+        <DateTimePickerModal
+          isVisible={openTime}
+          mode="time"
+          onConfirm={handleConfirm}
+          locale={"pt_BR"}
+          onCancel={hideDatePicker}
+        />
+
+        <InputMasKComponent
+          label="Valor"
+          maskType="currency"
+          placeholder="Informe o valor do serviço"
+          value={value}
+          setValue={setValue}
+        />
+        <View style={styles.containerSwitch}>
+          <Text>Ativo</Text>
+          <Switch
+            value={status}
+            onValueChange={setStatus}
+            trackColor={{ false: "#767577", true: colors.primary }}
+            thumbColor={status ? colors.primary : "#f4f3f4"}
+          />
+        </View>
+
+        <View style={styles.containerButton}>
+          <ButtonComponent
+            title="Salvar"
+            onPress={updateService}
+            loading={loading}
+          />
+        </View>
+      </View>
+    </ScrollView>
+    }
+     
     </KeyboardAvoidingView>
   );
 };

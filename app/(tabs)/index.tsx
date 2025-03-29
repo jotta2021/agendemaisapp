@@ -185,7 +185,10 @@ const Services = () => {
                 </View>
                 <View>
                   <Text style={styles.titleService}>{item.name}</Text>
-                  <Text style={styles.description}>{item.description}</Text>
+                  <Text style={styles.description}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  >{item.description}</Text>
                   <Text style={styles.time}>{formatHour(item.time)}</Text>
                   <View style={styles.containerValue}>
                     <View
@@ -334,14 +337,15 @@ const styles = StyleSheet.create({
     borderRadius: 80,
   },
   titleService: {
-    fontSize: 16,
-    fontFamily: "Poppins-Bold",
+    fontSize: 15,
+    fontFamily: "Poppins-Medium",
   },
   description: {
     fontFamily: "Poppins-Regular",
     color: "grey",
     flexWrap: "wrap",
     width: width * 0.6,
+    fontSize:12
   },
   time: {
     fontFamily: "Poppins-Regular",

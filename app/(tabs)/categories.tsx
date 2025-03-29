@@ -160,10 +160,11 @@ const styles = StyleSheet.create({
     borderRadius: 80,
   },
   titleService: {
-    fontSize: 16,
-    fontFamily: "Poppins-Bold",
+    fontSize: 15,
+    fontFamily: "Poppins-Medium",
   },
   description: {
+    fontSize:12,
     fontFamily: "Poppins-Regular",
     color: "grey",
     flexWrap: "wrap",

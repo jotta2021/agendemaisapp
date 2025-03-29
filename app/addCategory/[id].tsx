@@ -22,39 +22,59 @@ import { Toast } from "react-native-toast-notifications";
 import { router, useNavigation } from "expo-router";
 import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
 import { CheckBox, Switch } from "@rneui/themed";
+import LoadingComponent from "../_components/LoadingComponent";
 
 const addCategory = () => {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   console.log("id", id);
   const [category, setCategory] = useState("");
-  const [status,setStatus] = useState(true)
+  const [status, setStatus] = useState(true);
   const [loading, setLoading] = useState(false);
   const { user } = useContext(context);
+
+  async function getCategorie() {
+    setLoading(true)
+    await api
+      .get(`/categorieById?id_categorie=${id}`)
+      .then((res) => {
+        setCategory(res.data.name);
+        setStatus(res.data.status);
+        setLoading(false)
+      })
+
+      .catch((error) => {
+        Toast.show(`Erro ao buscar categoria ${error}`, { type: "danger" });
+     setLoading(false)
+      });
+  }
 
   useEffect(() => {
     navigation.setOptions({
       title: id !== "[id]" ? "Atualizar Categoria" : "Adicionar Categoria",
     });
+    getCategorie();
   }, [id]);
-  async function CreateCategory() {
+
+  async function UpdateCategorie() {
     if (category !== "") {
       setLoading(true);
       const data = {
         name: category,
-        id_enterprise: user && user.id,
+       id:id,
+       status:status
       };
       await api
-        .post("/categorieService", data)
+        .put("/categorieService/update", data)
         .then((res) => {
           setLoading(false);
-          Toast.show("Categoria adicionada", { type: "success" });
+          Toast.show("Categoria atualizada", { type: "success" });
           router.back();
           setCategory("");
         })
         .catch((error) => {
           setLoading(false);
-          Toast.show(`Erro ao adicionar categoria ${error?.response?.data}`, {
+          Toast.show(`Erro ao atualizar categoria ${error?.response?.data}`, {
             type: "danger",
           });
         });
@@ -65,7 +85,14 @@ const addCategory = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      {
+        loading ?
+        <View style={{alignItems:'center',justifyContent:'center',flex:1}}>
+           <LoadingComponent/> 
+        </View>
+       :
+
+        <View style={styles.content}>
         <View style={styles.categoryContainer}>
           <InputComponent
             label="Nome"
@@ -73,24 +100,27 @@ const addCategory = () => {
             value={category}
             setValue={setCategory}
           />
-          {
-            id !=='[id]' &&
-       
-            <Switch
-              value={status}
-              onValueChange={() => setStatus(!status)}
-            />
-          }
-
-          
+          {id !== "[id]" && (
+            <View style={styles.containerSwitch}>
+              <Text>Ativo</Text>
+              <Switch
+                value={status}
+                onValueChange={setStatus}
+                trackColor={{ false: "#767577", true: colors.primary }}
+                thumbColor={status ? colors.primary : "#f4f3f4"}
+              />
+            </View>
+          )}
         </View>
 
         <ButtonComponent
           title="Salvar"
-          onPress={CreateCategory}
+          onPress={UpdateCategorie}
           loading={loading}
         />
       </View>
+      }
+     
     </SafeAreaView>
   );
 };
@@ -109,8 +139,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingBottom: 80,
   },
-  categoryContainer:{
-alignItems:'flex-start'
-  }
+  categoryContainer: {
+    alignItems: "flex-start",
+  },
+  containerSwitch: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    gap: 10,
+  },
 });
 export default addCategory;
