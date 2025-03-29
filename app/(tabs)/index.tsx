@@ -306,7 +306,7 @@ const Services = () => {
         icon={<Ionicons name="add" size={20} color={"white"} />}
         color={colors.primary}
         placement={"right"}
-        onPress={() => router.push('/addService/service')}
+        onPress={() => router.push('/addService/[id]')}
       />
     </SafeAreaView>
   );

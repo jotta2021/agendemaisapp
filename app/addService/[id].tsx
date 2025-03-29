@@ -41,7 +41,7 @@ type CategoryInSelect = {
 
 const addService = () => {
   const { id } = useLocalSearchParams();
-
+console.log('id', id)
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -206,6 +206,72 @@ const addService = () => {
     }
   }
 
+   async function registerService() {
+      if (name !== "" && value !== "" && time !== "" && category !== "") {
+        try {
+          setLoading(true);
+          const data = {
+            name: name,
+            description: description,
+            value: formatCurrencyToNumber(value),
+            time: time,
+            id_category: category,
+            id_enterprise: user?.id,
+            image: "",
+          };
+          const formdata = new FormData();
+          Object.entries(data).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+              formdata.append(key, value.toString());
+            }
+          });
+  
+          if (imageFile ) {
+            const uri = imageFile;
+        
+            // Pegando o tipo do arquivo e criando um objeto File
+            const fileType = uri.split('.').pop(); // Pegando a extensão do arquivo
+            const fileName = `profile.${fileType}`;
+        
+            // Convertendo o URI em um objeto File
+            const file = {
+              uri: uri,
+              name: fileName,
+              type: `image/${fileType}`,
+            };
+        
+            // Adicionando a imagem ao FormData
+            formdata.append('image', file as never);
+          }
+        
+  
+          await api.post("/service", formdata, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+          setLoading(false);
+          Toast.show("Serviço adicionado", { type: "success" });
+          setCategory("");
+          setDescription("");
+          setName("");
+          setTime("");
+          setImageFile(null)
+          setImage('')
+          router.push("/(tabs)");
+        } catch (error) {
+          setLoading(false);
+          const axiosError = error as AxiosError;
+          console.log(axiosError);
+          Toast.show(`Erro ao adicionar serviço ${axiosError?.response?.data}`, {
+            type: "danger",
+          });
+        }
+      } else {
+        Toast.show("Preencha os campos obrigatórios");
+      }
+    }
+
   const renderItem = (item: CategoryInSelect) => {
     return (
       <View style={styles.item}>
@@ -313,7 +379,9 @@ const addService = () => {
           value={value}
           setValue={setValue}
         />
-        <View style={styles.containerSwitch}>
+        {
+          id !== "[id]" && (
+            <View style={styles.containerSwitch}>
           <Text>Ativo</Text>
           <Switch
             value={status}
@@ -322,11 +390,22 @@ const addService = () => {
             thumbColor={status ? colors.primary : "#f4f3f4"}
           />
         </View>
+          )
+        }
+        
 
         <View style={styles.containerButton}>
           <ButtonComponent
             title="Salvar"
-            onPress={updateService}
+            onPress={()=> {
+              //verifica se tem um id valido
+            if(id==='[id]'){
+              registerService()
+            }else{
+              updateService()
+            }
+          }
+        }
             loading={loading}
           />
         </View>

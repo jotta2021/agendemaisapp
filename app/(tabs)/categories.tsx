@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import colors from "@/assets/colors";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Entypo from 'react-native-vector-icons/Entypo'
 import SearchBar from "../_components/SearchBar";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import api from "../hooks/apiService";
 import { context } from "../_contexts";
 import { Toast } from "react-native-toast-notifications";
@@ -48,10 +48,12 @@ const Categories = () => {
         Toast.show("Erro ao buscar categorias", { type: "danger" });
       });
   }
-
-  useEffect(() => {
-    getCategories();
-  }, []);
+useFocusEffect(
+  useCallback(()=> {
+    getCategories()
+  },[])
+)
+ 
 
  function SearchCategories() {
     if (search !== "") {

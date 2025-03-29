@@ -56,6 +56,30 @@ const addCategory = () => {
     getCategorie();
   }, [id]);
 
+  async function CreateCategory(){
+    if(category!==''){
+        setLoading(true)
+    const data = {
+      name:category,
+      id_enterprise:user && user.id
+    }
+    await api.post('/categorieService', data)
+    .then((res)=> {
+      setLoading(false)
+      Toast.show("Categoria adicionada", {type:'success'})
+      router.back()
+      setCategory('')
+    })
+    .catch((error)=> {
+      setLoading(false)
+      Toast.show(`Erro ao adicionar categoria ${error?.response?.data}`, {type:'danger'})
+    })
+    }else{
+      Toast.show("Informe o nome da categoria")
+    }
+  
+  }
+
   async function UpdateCategorie() {
     if (category !== "") {
       setLoading(true);
@@ -115,7 +139,14 @@ const addCategory = () => {
 
         <ButtonComponent
           title="Salvar"
-          onPress={UpdateCategorie}
+          onPress={()=> {
+
+            if(id === "[id]"){
+              CreateCategory()
+            }else{
+              UpdateCategorie()
+            }
+            }}
           loading={loading}
         />
       </View>
