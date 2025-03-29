@@ -149,7 +149,7 @@ const MyData = () => {
       number: number,
       latitude: null,
       longitude: null,
-      // "cep":cep
+      cep:cep
     };
 
     // Verificando se o campo img_profile ou banner é um objeto de arquivo

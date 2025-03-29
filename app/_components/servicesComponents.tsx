@@ -66,7 +66,8 @@ const styles = StyleSheet.create({
     borderColor: colors.light,
     borderRadius: 6,
     padding:6,
-    width:200
+    width:200,
+    
   },
   containerImage: {
     width: "100%",

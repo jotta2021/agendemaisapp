@@ -34,6 +34,8 @@ type enterprise = {
   banner: string;
   cep: string;
   id: string;
+  state:string;
+  
 }
 type service = {
   id: string;
@@ -65,6 +67,7 @@ const MyLoja: React.FC = () => {
     banner: "",
     cep: "",
     id: "",
+    state:''
   });
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<{ id: string; name: string; status: boolean }[]>([]);
@@ -165,7 +168,7 @@ const MyLoja: React.FC = () => {
             <Text style={styles.adress}>
               {data.district} , {data.adress}, {data.number}
             </Text>
-            <Text style={styles.adress}>{data.city} </Text>
+            <Text style={styles.adress}>{data.city} {data.state}  {data.cep && `- ${data.cep}`} </Text>
           </View>
         </View>
 
@@ -258,7 +261,14 @@ const MyLoja: React.FC = () => {
 
           </View>
         ) : (
-          ""
+          index===1 ?
+          <View>
+
+          </View> :
+          <View>
+
+
+          </View>
         )}
       </View>
     </View>
