@@ -13,8 +13,13 @@ import { context } from "../_contexts";
 import api from "../hooks/apiService";
 import { Toast } from "react-native-toast-notifications";
 import { useFocusEffect } from "expo-router";
+import EvilIcons from "react-native-vector-icons/EvilIcons";
+import { Tab, TabView } from "@rneui/themed";
+import { TabItem } from "@rneui/base/dist/Tab/Tab.Item";
+import ServicesComponents from "../_components/servicesComponents";
+import LoadingComponent from "../_components/LoadingComponent";
 
-interface enterprise {
+type enterprise = {
   name_enterprise: string;
   description: string;
   email: string;
@@ -29,6 +34,18 @@ interface enterprise {
   banner: string;
   cep: string;
   id: string;
+}
+type service = {
+  id: string;
+  name: string;
+  description: string;
+  duration: string;
+  id_category: string;
+  id_enterprise: string;
+  status: boolean;
+  image: string;
+  time: string;
+  value:number;
 }
 const height = Dimensions.get("screen").height;
 const MyLoja: React.FC = () => {
@@ -50,8 +67,14 @@ const MyLoja: React.FC = () => {
     id: "",
   });
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<{ id: string; name: string; status: boolean }[]>([]);
   const [categorySelected, setCategorySelected] = useState<string>("");
+  const [services, setServices] = useState<service[]>([]);
+  const [loadingServices, setLoadingServices] = useState(false);
+  //controla os tabs
+  const [index, setIndex] = useState(0);
+
+  console.log(data);
   async function getData() {
     setLoading(true);
     await api
@@ -73,7 +96,8 @@ const MyLoja: React.FC = () => {
       .then((res) => {
         const data = res.data;
         setLoading(false);
-        setCategories(data);
+        const filtered = data.filter((item: any) => item.status === true);
+        setCategories(filtered);
       })
       .catch((error) => {
         setLoading(false);
@@ -87,6 +111,31 @@ const MyLoja: React.FC = () => {
       getCategories();
     }, [])
   );
+
+  // funcao para buscar os serviços de uma categoria
+  async function getSevicesByCategory() {
+    setLoadingServices(true);
+    await api
+      .get(`/servicesByCategory?id_category=${categorySelected}`)
+      .then((res) => {
+        const data = res.data;
+        //vai filtrar apenas os serviços que estao ativos
+        const filtered = data.filter((item: any) => item.status === true);
+        setServices(filtered);
+        setLoadingServices(false);
+      })
+      .catch((error) => {
+        Toast.show(`Erro ao buscar serviços ${error?.response?.data}`, {
+          type: "danger",
+        });
+        setLoadingServices(false);
+      });
+  }
+
+  useEffect(() => {
+    getSevicesByCategory();
+  }, [categorySelected]);
+
 
   return (
     <View style={styles.container}>
@@ -103,48 +152,114 @@ const MyLoja: React.FC = () => {
       <View style={styles.content}>
         <Text style={styles.title}>{data.name_enterprise}</Text>
         <Text style={styles.subtitle}>{data.description}</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            marginTop: 10,
+          }}
+        >
+          <EvilIcons name="location" size={20} color={colors.primary} />
+          <View>
+            <Text style={styles.adress}>
+              {data.district} , {data.adress}, {data.number}
+            </Text>
+            <Text style={styles.adress}>{data.city} </Text>
+          </View>
+        </View>
 
-        <View style={styles.dataContent}>
-          <Text style={styles.titleServices}>Serviços</Text>
+        <Tab
+          style={{ marginTop: 20 }}
+          value={index}
+          onChange={setIndex}
+          dense
+          indicatorStyle={{ backgroundColor: colors.primary }}
+        >
+          <TabItem titleStyle={{ color: colors.dark, fontSize: 14 }}>
+            Serviços
+          </TabItem>
+          <TabItem titleStyle={{ color: colors.dark, fontSize: 14 }}>
+            Avaliações
+          </TabItem>
+          <TabItem titleStyle={{ color: colors.dark, fontSize: 14 }}>
+            Detalhes
+          </TabItem>
+        
+        </Tab>
 
-          <FlatList
-            data={categories}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{
-              gap: 10,
-              paddingStart: 10,
-              paddingTop: 10,
-            }}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.categoryContainer,
-                  {
-                    backgroundColor:
-                      categorySelected === item.id ? colors.gray : colors.light,
-                  },
-                ]}
-                onPress={() => {
-                  setCategorySelected(item.id);
-                }}
-              >
-                <Text
+        {index === 0 ? (
+          <View style={styles.dataContent}>
+            <FlatList
+              data={categories}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={{
+                gap: 10,
+                paddingStart: 10,
+                paddingTop: 10,
+              }}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  key={item.id}
                   style={[
-                    styles.category,
+                    styles.categoryContainer,
                     {
-                      color: categorySelected === item.id ? "white" : "black",
+                      backgroundColor:
+                        categorySelected === item.id
+                          ? colors.gray
+                          : colors.light,
                     },
                   ]}
+                  onPress={() => {
+                    setCategorySelected(item.id);
+                  }}
                 >
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
+                  <Text
+                    style={[
+                      styles.category,
+                      {
+                        color: categorySelected === item.id ? "white" : "black",
+                      },
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+
+
+{
+  loadingServices ?
+  <View style={{alignItems:'center',justifyContent:'center',width:'100%',paddingTop:100}}>
+    <LoadingComponent/>
+  </View>
+  :
+   <FlatList
+  data={services}
+  contentContainerStyle={{
+    marginTop:20,
+    paddingHorizontal: 10,  
+    gap:10,
+  }}
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  keyExtractor={(item) => item.id}
+  renderItem={({item})=> (
+    <ServicesComponents data={item} />
+  )}
+  />
+
+}
+ 
+
+
+          </View>
+        ) : (
+          ""
+        )}
       </View>
     </View>
   );
@@ -210,6 +325,13 @@ const styles = StyleSheet.create({
     width: 200,
     alignItems: "center",
   },
+  adress: {
+    fontSize: 10,
+    color: colors.dark,
+    fontFamily: "Poppins-Medium",
+    textAlign: "center",
+  },
+
 });
 
 export default MyLoja;

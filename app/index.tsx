@@ -45,13 +45,15 @@ setTimeout(()=> {
 },1500)
 
 
+
+
 },[])
 
   return (
     <View style={styles.container}>
       <Animated.View style={{opacity:fadeIn}}>
           <Image
-        source={require("@/assets/images/logo.png")}
+        source={require("@/assets/images/logo-estabelecimentos.png")}
         style={styles.image}
       />
       </Animated.View>
@@ -68,7 +70,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   image: {
-    width: 120,
-    height: 120,
+    width: 200,
+    height: 200,
+    objectFit: "contain",
   },
 });
