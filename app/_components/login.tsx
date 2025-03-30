@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import InputComponent from "./InputComponent";
 import colors from "@/assets/colors";
@@ -107,7 +108,9 @@ const Login = ({ close }: Props) => {
     }
   }
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+    <TouchableWithoutFeedback onPress={() =>{ 
+      Platform.OS ==='web' ? {} :
+      Keyboard.dismiss()}}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>

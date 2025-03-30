@@ -182,7 +182,7 @@ const Services = () => {
               onPress={()=> router.push(`/addService/${item.id}` as never)}
               >
                 <View style={styles.image}>
-                  <Image src={item.image} style={styles.image} />
+                  <Image source={{uri:item.image}} style={[styles.image,{objectFit:'contain'}]} />
                 </View>
                 <View>
                   <Text style={styles.titleService}>{item.name}</Text>

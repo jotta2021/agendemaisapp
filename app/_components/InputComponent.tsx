@@ -57,6 +57,7 @@ const InputComponent = ({
           onChangeText={(text) => setValue(text)}
           secureTextEntry={visible && visible===true ? true :false}
           keyboardType={type}
+          
    
         />
         {icon && (

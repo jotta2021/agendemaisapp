@@ -10,6 +10,7 @@ import {
   Keyboard,
   Image,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { context } from "../_contexts";
 import api from "../hooks/apiService";
@@ -230,9 +231,12 @@ const MyData = () => {
     }
   }
 
+
   return (
     <KeyboardAvoidingView behavior="height">
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <TouchableWithoutFeedback onPress={() => {
+        Platform.OS==='web' ? {} :
+        Keyboard.dismiss()}}>
         <ScrollView style={styles.container}>
           <View style={styles.content}>
             <View style={styles.card}>
@@ -243,9 +247,7 @@ const MyData = () => {
                   {data.img_profile && (
                     <Image
                       source={{ uri:profileFile ? profileFile : data.img_profile }}
-                      width={100}
-                      height={100}
-                      style={{ borderRadius: 60 }}
+                      style={{ borderRadius: 60, objectFit:'contain', width:100, height:100 }}
                     />
                   )}
                       <TouchableOpacity
@@ -323,18 +325,19 @@ const MyData = () => {
                   setValue={setCep}
                   placeholder="Informe a CEP"
                 />
+                  <InputComponent
+                  label="Estado"
+                  value={state}
+                  setValue={setState}
+                  placeholder="Informe o estado"
+                />
                 <InputComponent
                   label="Cidade"
                   value={city}
                   setValue={setCity}
                   placeholder="Informe a cidade"
                 />
-                <InputComponent
-                  label="Estado"
-                  value={state}
-                  setValue={setState}
-                  placeholder="Informe o estado"
-                />
+              
               </View>
             </View>
             <View style={styles.card}>

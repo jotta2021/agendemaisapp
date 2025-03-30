@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 
 import React, { useRef ,useState} from "react";
 import {
+  Dimensions,
   Image,
   ImageProps,
   StyleSheet,
@@ -101,7 +102,7 @@ const Introduction: React.FC = () => {
     </View>
   );
 };
-
+const height = Dimensions.get('screen').height
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
   },
   slide: {
     backgroundColor: "white",
-    flex: 1,
+    height:height,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -62,8 +62,7 @@ const Profile: React.FC = () => {
             <Image
               style={styles.img_container}
               source={{ uri: data.img_profile }}
-              width={50}
-              height={50}
+             
             />
           ) : (
             <User name="user-circle" color={"white"} size={50} />
@@ -157,6 +156,8 @@ const styles = StyleSheet.create({
   },
   img_container: {
     borderRadius: 50,
+    width:50,
+    height:50
   },
 });
 export default Profile;
