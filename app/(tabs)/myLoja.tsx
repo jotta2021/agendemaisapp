@@ -155,9 +155,7 @@ const MyLoja: React.FC = () => {
         <View style={styles.containerProfile}>
           <Image
             source={{ uri: data.img_profile }}
-            width={150}
-            height={150}
-            style={{ borderRadius: 150, objectFit: "contain" }}
+            style={{ borderRadius: 150, objectFit: "contain",width:150,height:150 }}
           />
         </View>
       </View>
