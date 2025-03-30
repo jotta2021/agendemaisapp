@@ -21,7 +21,7 @@ import ImageIcon from "react-native-vector-icons/AntDesign";
 import * as ImagePicker from "expo-image-picker";
 import { formToJSON } from "axios";
 import InputMasKComponent from "../_components/InputMaskComponent";
-
+import { Skeleton } from '@rneui/themed';
 interface enterprise {
   name_enterprise: string;
   description: string;

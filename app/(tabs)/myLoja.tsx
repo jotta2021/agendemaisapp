@@ -142,7 +142,16 @@ const MyLoja: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { backgroundColor: data.color_header }]}>
+      
+      {
+        loading ?
+        <View style={{flex:1, justifyContent:'center'}}>
+          <LoadingComponent /> 
+        </View>
+        :
+
+        <View>
+ <View style={[styles.header, { backgroundColor: data.color_header }]}>
         <View style={styles.containerProfile}>
           <Image
             source={{ uri: data.img_profile }}
@@ -152,7 +161,7 @@ const MyLoja: React.FC = () => {
           />
         </View>
       </View>
-      <View style={styles.content}>
+   <View style={styles.content}>
         <Text style={styles.title}>{data.name_enterprise}</Text>
         <Text style={styles.subtitle}>{data.description}</Text>
         <View
@@ -271,6 +280,10 @@ const MyLoja: React.FC = () => {
           </View>
         )}
       </View>
+        </View>
+      }
+     
+   
     </View>
   );
 };
