@@ -20,6 +20,7 @@ interface Props {
   security?: boolean | undefined;
   visible?: boolean | undefined
   setVisible?:(value:boolean)=> void | undefined;
+  editable?: boolean
 }
 
 const InputComponent = ({
@@ -29,9 +30,9 @@ const InputComponent = ({
   setValue,
   icon,
   type,
-  security,
   visible,
-  setVisible
+  setVisible,
+ 
 }: Props) => {
   const [isFocus, setIsFocus] = useState(false);
   
@@ -54,11 +55,12 @@ const InputComponent = ({
           onBlur={handleBlur}
           value={value}
           onChangeText={(text) => setValue(text)}
-          secureTextEntry={security && security===true && visible && visible===true ? true :false}
+          secureTextEntry={visible && visible===true ? true :false}
           keyboardType={type}
+   
         />
         {icon && (
-          <TouchableOpacity activeOpacity={0.8} style={styles.icon} onPress={()=> visible && setVisible && setVisible(!visible)}>
+          <TouchableOpacity activeOpacity={0.8} style={styles.icon} onPress={() => setVisible && setVisible(!visible)}>
             {icon}
           </TouchableOpacity>
         )}

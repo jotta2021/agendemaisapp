@@ -36,6 +36,9 @@ interface enterprise {
   banner: string;
   cep:string
   id:string
+  phone:String
+  state:string
+
 }
 const Security = () => {
   const { user, setUser } = useContext(context);
@@ -53,27 +56,14 @@ const Security = () => {
     img_profile: "",
     banner: "",
     cep:'',
-    id: ''
+    id: '',
+    phone:"",
+    state:""
   });
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [phone, setPhone] = useState("");
-  const [nameEnterprise, setNameEnterprise] = useState("");
-  const [description, setDescription] = useState("");
-  const [color_header, setColor_header] = useState("");
-  const [img_profile, setImg_profile] = useState("");
-  const [banner, setBanner] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [address, setAdress] = useState("");
-  const [district, setDistrict] = useState("");
-  const [number, setNumber] = useState("");
-const [cep,setCep] = useState('')
-  //image files
-  const [profileFile, setProfileFile] = useState<string| null>(null);
-  const [banneFile, setBannerFile] = useState<string| null>(null);
+const [password,setPassword] = useState('')
+const [confirmPassword,setConfirmPassword] = useState('')
 const [loadingButton,setLoadingButton] = useState(false)
   async function getData() {
     setLoading(true);
@@ -102,31 +92,70 @@ const [loadingButton,setLoadingButton] = useState(false)
 
 
 async function UpdateData() {
-  const formdata = new FormData();
-setLoadingButton(true)
- 
-
-  try {
-    const res = await api.put('/enterprise/update',{
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "Accept": "application/json",
-      },
+if( password!=='' && confirmPassword!=='' ){
+  if( password===confirmPassword){
+    const formdata = new FormData();
+    setLoadingButton(true)
+    const dataApi = {
+      id: data.id,
+      name_enterprise: data.name_enterprise,
+      description:data. description,
+      cnpj_cpf: data.cnpj_cpf,
+      phone: data.banner,
+      name_user: data.name_user,
+      adress: data.adress,
+      color_header: data.color_header,
+      banner: data.banner,
+      img_profile: data.img_profile,
+      city: data.city,
+      state: data.state,
+      district: data.district,
+      number: data.number,
+      latitude: null,
+      longitude: null,
+      cep:data.cep,
+      password:password
+    };
+    
+    Object.entries(dataApi).forEach(([key, value]) => {
+      if (
+        value !== null &&
+        value !== undefined 
+      ) {
+        formdata.append(key, value);
+      }
     });
-    setLoadingButton(false)
-    Toast.show("Dados atualizados", { type: 'success' });
-  } catch (error: unknown) {
-    setLoadingButton(false);
-  
-    if (error instanceof Error) {
-      console.log('Erro da API:', (error as any).response?.data || error.message);
-      Toast.show(`Erro ao atualizar dados: ${error.message}`, { type: 'danger' });
-    } else {
-      console.log('Erro desconhecido:', error);
-      Toast.show('Ocorreu um erro inesperado.', { type: 'danger' });
-    }
+      try {
+        const res = await api.put('/enterprise/update',formdata,{
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Accept": "application/json",
+          },
+        });
+        setLoadingButton(false)
+        Toast.show("Senha atualizada", { type: 'success' });
+        setConfirmPassword('')
+        setPassword('')
+      } catch (error: unknown) {
+        setLoadingButton(false);
+      
+        if (error instanceof Error) {
+          console.log('Erro da API:', (error as any).response?.data || error.message);
+          Toast.show(`Erro ao atualizar senha: ${error.message}`, { type: 'danger' });
+        } else {
+          console.log('Erro desconhecido:', error);
+          Toast.show('Ocorreu um erro inesperado.', { type: 'danger' });
+        }
+      }
+      
+  }else{
+    Toast.show('As senhas precisam ser iguais')
   }
   
+}else{
+  Toast.show('Preencha os campos vazios')
+}
+ 
 }
 
   return (
@@ -138,17 +167,33 @@ setLoadingButton(true)
               <Text style={styles.titleCard}>Sua loja</Text>
 
               <View style={styles.containerInputs}>
-                <InputComponent
-                  label="Email"
-                  value={email}
-                  setValue={setEmail}
-                  placeholder="Email"
-                />
+                
+                  <Text style={styles.label}>Email</Text>
+                      <View style={styles.containerInput}>
+                        <TextInput
+                          placeholder="Email"
+                          style={styles.input}
+                          value={email}
+                          onChangeText={(text) => setEmail(text)}
+                          editable={false}
+                   
+                        />
+                      
+                      </View>
+             
                 <InputComponent
                   label="Nova senha"
-                  value={description}
-                  setValue={setDescription}
-                  placeholder="Descrição da sua loja"
+                  value={password}
+                  setValue={setPassword}
+                  placeholder="Informe sua nova senha"
+                  visible={true}
+                />
+                <InputComponent
+                label="Confirme a nova senha"
+                value={confirmPassword}
+                setValue={setConfirmPassword}
+                placeholder="Confirme sua senha"
+                visible={true}
                 />
               
              
@@ -199,7 +244,25 @@ flex:1
   },
   imageSend:{
     color:colors.primary
-  }
+  },
+   label: {
+      fontFamily: "Poppins-Medium",
+      fontSize:12
+    },
+    containerInput: {},
+    input: {
+      backgroundColor: "#fff",
+      padding: 14,
+      borderWidth: 0.2,
+      borderRadius: 10,
+    },
+    inputFocus: {
+      backgroundColor: "#fff",
+      padding: 14,
+      borderWidth: 0.2,
+      borderRadius: 10,
+      borderColor: colors.primary,
+    },
 });
 
 export default Security;

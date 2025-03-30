@@ -204,7 +204,7 @@ const Register = ({ close }: Props) => {
                   )
                 }
                 type="default"
-                security={true}
+                security={securityPassword}
                 value={password}
                 setValue={setPassword}
                 visible={securityPassword}
