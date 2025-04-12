@@ -332,12 +332,17 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   service: {
-    backgroundColor: "#e6e6e6",
+    backgroundColor: "white",
     padding: 10,
     borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
+    elevation:1,
+    shadowColor:'black',
+    shadowOffset:{width:0,height:1},
+    shadowOpacity:0.1,
+    shadowRadius:4
   },
   image: {
     backgroundColor: "#d1d1d1",
@@ -381,6 +386,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 10,
     padding: 4,
+    width:80,
+    alignItems:'center'
   },
   categoryContainer: {
     padding: 4,

@@ -85,6 +85,7 @@ console.log('id', id)
         setImage(data.image);
         setStatus(data.status);
         setLoading(false)
+
       })
       .catch((error) => {
         Toast.show("Erro ao buscar serviço", { type: "danger" });
@@ -387,7 +388,7 @@ console.log('id', id)
             value={status}
             onValueChange={setStatus}
             trackColor={{ false: "#767577", true: colors.primary }}
-            thumbColor={status ? colors.primary : "#f4f3f4"}
+          
           />
         </View>
           )

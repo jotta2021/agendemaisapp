@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
   Image,
+  Pressable,
 } from "react-native";
 import { context } from "../_contexts";
 import api from "../hooks/apiService";
@@ -18,6 +19,7 @@ import { Tab, TabView } from "@rneui/themed";
 import { TabItem } from "@rneui/base/dist/Tab/Tab.Item";
 import ServicesComponents from "../_components/servicesComponents";
 import LoadingComponent from "../_components/LoadingComponent";
+import { Feather } from "@expo/vector-icons";
 
 type enterprise = {
   name_enterprise: string;
@@ -34,9 +36,8 @@ type enterprise = {
   banner: string;
   cep: string;
   id: string;
-  state:string;
-  
-}
+  state: string;
+};
 type service = {
   id: string;
   name: string;
@@ -47,8 +48,8 @@ type service = {
   status: boolean;
   image: string;
   time: string;
-  value:number;
-}
+  value: number;
+};
 const height = Dimensions.get("screen").height;
 const MyLoja: React.FC = () => {
   const { user, setUser } = useContext(context);
@@ -67,13 +68,16 @@ const MyLoja: React.FC = () => {
     banner: "",
     cep: "",
     id: "",
-    state:''
+    state: "",
   });
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<{ id: string; name: string; status: boolean }[]>([]);
+  const [categories, setCategories] = useState<
+    { id: string; name: string; status: boolean }[]
+  >([]);
   const [categorySelected, setCategorySelected] = useState<string>("");
   const [services, setServices] = useState<service[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
+  const [profissionals, setProfissionals] = useState([]);
   //controla os tabs
   const [index, setIndex] = useState(0);
 
@@ -108,10 +112,25 @@ const MyLoja: React.FC = () => {
       });
   }
 
+  async function getProfissionals() {
+    setLoading(true);
+    await api
+      .get(`/professionalByEnterprise?id_enterprise=${user?.id}`)
+      .then((res) => {
+        setLoading(false);
+        setProfissionals(res.data);
+      })
+      .catch((error) => {
+        setLoading(false);
+        Toast.show("Ocorreu um erro ao buscar os profissionais");
+      });
+  }
+
   useFocusEffect(
     useCallback(() => {
       getData();
       getCategories();
+      getProfissionals();
     }, [])
   );
 
@@ -139,149 +158,165 @@ const MyLoja: React.FC = () => {
     getSevicesByCategory();
   }, [categorySelected]);
 
-
   return (
     <View style={styles.container}>
-      
-      {
-        loading ?
-        <View style={{flex:1, justifyContent:'center'}}>
-          <LoadingComponent /> 
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <LoadingComponent />
         </View>
-        :
-
+      ) : (
         <View>
- <View style={[styles.header, { backgroundColor: data.color_header }]}>
-        <View style={styles.containerProfile}>
-          <Image
-            source={{ uri: data.img_profile }}
-            style={{ borderRadius: 150, objectFit: "contain",width:150,height:150 }}
-          />
-        </View>
-      </View>
-   <View style={styles.content}>
-        <Text style={styles.title}>{data.name_enterprise}</Text>
-        <Text style={styles.subtitle}>{data.description}</Text>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            marginTop: 10,
-          }}
-        >
-          <EvilIcons name="location" size={20} color={colors.primary} />
-          <View>
-            <Text style={styles.adress}>
-              {data.district} , {data.adress}, {data.number}
-            </Text>
-            <Text style={styles.adress}>{data.city} {data.state}  {data.cep && `- ${data.cep}`} </Text>
+          <View style={[styles.header, { backgroundColor: data.color_header }]}>
+            <View style={styles.containerProfile}>
+              <Image
+                source={{ uri: data.img_profile }}
+                style={{
+                  borderRadius: 150,
+                  objectFit: "contain",
+                  width: 150,
+                  height: 150,
+                }}
+              />
+            </View>
           </View>
-        </View>
-
-        <Tab
-          style={{ marginTop: 20 }}
-          value={index}
-          onChange={setIndex}
-          dense
-          indicatorStyle={{ backgroundColor: colors.primary }}
-        >
-          <TabItem titleStyle={{ color: colors.dark, fontSize: 14 }}>
-            Serviços
-          </TabItem>
-          <TabItem titleStyle={{ color: colors.dark, fontSize: 14 }}>
-            Avaliações
-          </TabItem>
-          <TabItem titleStyle={{ color: colors.dark, fontSize: 14 }}>
-            Detalhes
-          </TabItem>
-        
-        </Tab>
-
-        {index === 0 ? (
-          <View style={styles.dataContent}>
-            <FlatList
-              data={categories}
-              keyExtractor={(item) => item.id}
-              contentContainerStyle={{
-                gap: 10,
-                paddingStart: 10,
-                paddingTop: 10,
+          <View style={styles.content}>
+            <Text style={styles.title}>{data.name_enterprise}</Text>
+            <Text style={styles.subtitle}>{data.description}</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "flex-start",
+                justifyContent: "center",
+                marginTop: 10,
               }}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[
-                    styles.categoryContainer,
-                    {
-                      backgroundColor:
-                        categorySelected === item.id
-                          ? colors.gray
-                          : colors.light,
-                    },
-                  ]}
-                  onPress={() => {
-                    setCategorySelected(item.id);
+            >
+              <EvilIcons name="location" size={20} color={colors.primary} />
+              <View>
+                <Text style={styles.adress}>
+                  {data.district} , {data.adress}, {data.number}
+                </Text>
+                <Text style={styles.adress}>
+                  {data.city} {data.state} {data.cep && `- ${data.cep}`}{" "}
+                </Text>
+              </View>
+            </View>
+
+            <Tab
+              style={{ marginTop: 20 }}
+              value={index}
+              onChange={setIndex}
+              dense
+              indicatorStyle={{ backgroundColor: colors.primary }}
+            >
+              <TabItem titleStyle={{ color: colors.dark, fontSize: 14 }}>
+                Serviços
+              </TabItem>
+              <TabItem titleStyle={{ color: colors.dark, fontSize: 14 }}>
+                Avaliações
+              </TabItem>
+              <TabItem titleStyle={{ color: colors.dark, fontSize: 14 }}>
+                Detalhes
+              </TabItem>
+            </Tab>
+
+            {index === 0 ? (
+              <View style={styles.dataContent}>
+                <FlatList
+                  data={categories}
+                  keyExtractor={(item) => item.id}
+                  contentContainerStyle={{
+                    gap: 10,
+                    paddingStart: 10,
+                    paddingTop: 10,
                   }}
-                >
-                  <Text
-                    style={[
-                      styles.category,
-                      {
-                        color: categorySelected === item.id ? "white" : "black",
-                      },
-                    ]}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.categoryContainer,
+                        {
+                          backgroundColor:
+                            categorySelected === item.id
+                              ? colors.gray
+                              : colors.light,
+                        },
+                      ]}
+                      onPress={() => {
+                        setCategorySelected(item.id);
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.category,
+                          {
+                            color:
+                              categorySelected === item.id ? "white" : "black",
+                          },
+                        ]}
+                      >
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                />
+
+                {loadingServices ? (
+                  <View
+                    style={{
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      paddingTop: 100,
+                    }}
                   >
-                    {item.name}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
+                    <LoadingComponent />
+                  </View>
+                ) : (
+                  <FlatList
+                    data={services}
+                    contentContainerStyle={{
+                      marginTop: 20,
+                      paddingHorizontal: 10,
+                      gap: 10,
+                    }}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                      <ServicesComponents data={item} />
+                    )}
+                  />
+                )}
+              </View>
+            ) : index === 1 ? (
+              <View></View>
+            ) : (
+              <View style={[styles.dataContent, { padding: 10 }]}>
+                <Text style={{fontSize:16}}>Profissionais</Text>
 
-
-{
-  loadingServices ?
-  <View style={{alignItems:'center',justifyContent:'center',width:'100%',paddingTop:100}}>
-    <LoadingComponent/>
-  </View>
-  :
-   <FlatList
-  data={services}
-  contentContainerStyle={{
-    marginTop:20,
-    paddingHorizontal: 10,  
-    gap:10,
-  }}
-  horizontal
-  showsHorizontalScrollIndicator={false}
-  keyExtractor={(item) => item.id}
-  renderItem={({item})=> (
-    <ServicesComponents data={item} />
-  )}
-  />
-
-}
- 
-
-
+                <FlatList
+                  data={profissionals}
+                  keyExtractor={(item, index) => item.id.toString()}
+                  contentContainerStyle={{ gap: 10, marginTop: 10 }}
+                  renderItem={({ item }) => (
+                    <Pressable key={item.id} style={styles.profissional}>
+                      <Feather name="user" color={colors.primary} size={24} />
+                      <View>
+                        <Text style={styles.titleServices}>{item.name}</Text>
+                        <Text style={styles.descriptionProfissional}>
+                          {item.description}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  )}
+                />
+              </View>
+            )}
           </View>
-        ) : (
-          index===1 ?
-          <View>
-
-          </View> :
-          <View>
-
-
-          </View>
-        )}
-      </View>
         </View>
-      }
-     
-   
+      )}
     </View>
   );
 };
@@ -352,7 +387,23 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Medium",
     textAlign: "center",
   },
-
+  profissional: {
+    padding: 10,
+    backgroundColor: "white",
+    borderRadius: 10,
+    elevation: 1,
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  descriptionProfissional: {
+    color: "grey",
+    fontSize: 12,
+  },
 });
 
 export default MyLoja;

@@ -22,8 +22,8 @@ import ImageIcon from "react-native-vector-icons/AntDesign";
 import * as ImagePicker from "expo-image-picker";
 import { formToJSON } from "axios";
 import InputMasKComponent from "../_components/InputMaskComponent";
-import { Skeleton } from '@rneui/themed';
-interface enterprise {
+import ColorPicker from "react-native-wheel-color-picker";
+type enterprise = {
   name_enterprise: string;
   description: string;
   email: string;
@@ -38,7 +38,7 @@ interface enterprise {
   banner: string;
   cep: string;
   id: string;
-}
+};
 const MyData = () => {
   const { user, setUser } = useContext(context);
   const [data, setData] = useState<enterprise>({
@@ -77,6 +77,7 @@ const MyData = () => {
   const [profileFile, setProfileFile] = useState<string | null>(null);
   const [banneFile, setBannerFile] = useState<string | null>(null);
   const [loadingButton, setLoadingButton] = useState(false);
+  const [openColor, setOpenColor] = useState(false);
   async function getData() {
     setLoading(true);
     await api
@@ -150,7 +151,7 @@ const MyData = () => {
       number: number,
       latitude: null,
       longitude: null,
-      cep:cep
+      cep: cep,
     };
 
     // Verificando se o campo img_profile ou banner é um objeto de arquivo
@@ -231,12 +232,13 @@ const MyData = () => {
     }
   }
 
-
   return (
     <KeyboardAvoidingView behavior="height">
-      <TouchableWithoutFeedback onPress={() => {
-        Platform.OS==='web' ? {} :
-        Keyboard.dismiss()}}>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Platform.OS === "web" ? {} : Keyboard.dismiss();
+        }}
+      >
         <ScrollView style={styles.container}>
           <View style={styles.content}>
             <View style={styles.card}>
@@ -246,19 +248,31 @@ const MyData = () => {
                 <View style={styles.containerProfile}>
                   {data.img_profile && (
                     <Image
-                      source={{ uri:profileFile ? profileFile : data.img_profile }}
-                      style={{ borderRadius: 60, objectFit:'contain', width:100, height:100 }}
+                      source={{
+                        uri: profileFile ? profileFile : data.img_profile,
+                      }}
+                      style={{
+                        borderRadius: 60,
+                        objectFit: "contain",
+                        width: 100,
+                        height: 100,
+                      }}
                     />
                   )}
-                      <TouchableOpacity
-                  style={{position:'absolute',backgroundColor:colors.primary, borderRadius:60,padding:10, left:70, top:10}}
-                  onPress={() => pickImage("profile")}
-                >
-                  <ImageIcon name="camerao" size={16} color={'white'} />
-                
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{
+                      position: "absolute",
+                      backgroundColor: colors.primary,
+                      borderRadius: 60,
+                      padding: 10,
+                      left: 70,
+                      top: 10,
+                    }}
+                    onPress={() => pickImage("profile")}
+                  >
+                    <ImageIcon name="camerao" size={16} color={"white"} />
+                  </TouchableOpacity>
                 </View>
-                
 
                 <InputComponent
                   label="Nome"
@@ -272,14 +286,21 @@ const MyData = () => {
                   setValue={setDescription}
                   placeholder="Descrição da sua loja"
                 />
-                <InputComponent
-                  label="Cor do topo"
-                  value={color_header}
-                  setValue={setColor_header}
-                  placeholder="Cor do topo da loja "
-                />
-            
-            
+
+                <TouchableOpacity
+                  style={styles.imagePicker}
+                  onPress={() => setOpenColor(!openColor)}
+                >
+                  
+                  <Text>Cor do topo da loja</Text>
+                </TouchableOpacity>
+                {openColor && (
+                  <ColorPicker
+                    color={color_header}
+                    onColorChangeComplete={(color) => setColor_header(color)}
+                    sliderHidden={false} // mostra ou esconde o slider de saturação/brightness
+                  />
+                )}
 
                 <TouchableOpacity
                   style={styles.imagePicker}
@@ -325,7 +346,7 @@ const MyData = () => {
                   setValue={setCep}
                   placeholder="Informe a CEP"
                 />
-                  <InputComponent
+                <InputComponent
                   label="Estado"
                   value={state}
                   setValue={setState}
@@ -337,7 +358,6 @@ const MyData = () => {
                   setValue={setCity}
                   placeholder="Informe a cidade"
                 />
-              
               </View>
             </View>
             <View style={styles.card}>

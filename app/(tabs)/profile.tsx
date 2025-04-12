@@ -81,10 +81,19 @@ const Profile: React.FC = () => {
           >
             <Text style={styles.option}>Meus Dados</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push("/settingsPages/mydata")}
+          >
+            <Text style={styles.option}>Meu plano</Text>
+          </TouchableOpacity>
          
 
           <Text style={styles.title}>CONFIGURAÇÃO</Text>
-
+          <TouchableOpacity
+          onPress={() => router.push("/settingsPages/profissionals/profissionals")}
+          >
+            <Text style={styles.option}>Profissionais</Text>
+          </TouchableOpacity>
           <TouchableOpacity
           onPress={() => router.push("/settingsPages/security")}
           >

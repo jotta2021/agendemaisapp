@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   content: {
     paddingTop: 10,
     paddingHorizontal: 10,
-    flex: 1,
+   
   },
   title: {
     fontFamily: "Poppins-Medium",
@@ -148,12 +148,17 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   service: {
-    backgroundColor: "#e6e6e6",
+    backgroundColor: "white",
     padding: 10,
     borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent:'space-between'
+    justifyContent:'space-between',
+    elevation:1,
+    shadowColor:'black',
+    shadowOffset:{width:0,height:1},
+    shadowOpacity:0.1,
+    shadowRadius:4
   },
   image: {
     backgroundColor: "#d1d1d1",

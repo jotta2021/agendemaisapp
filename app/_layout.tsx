@@ -59,6 +59,28 @@ export default function RootLayout() {
               headerTintColor: "white",
             }}
           />
+            <Stack.Screen
+            name="settingsPages/profissionals/profissionals"
+            options={{
+              title: "Profissionais",
+              headerBackTitle: "Voltar",
+              headerStyle: {
+                backgroundColor: colors.primary,
+              },
+              headerTintColor: "white",
+            }}
+          />
+           <Stack.Screen
+            name="settingsPages/profissionals/[id]"
+            options={{
+              title: "Profissional",
+              headerBackTitle: "Voltar",
+              headerStyle: {
+                backgroundColor: colors.primary,
+              },
+              headerTintColor: "white",
+            }}
+          />
 
             <Stack.Screen
             name="addService/[id]"

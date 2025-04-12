@@ -131,7 +131,7 @@ const addCategory = () => {
                 value={status}
                 onValueChange={setStatus}
                 trackColor={{ false: "#767577", true: colors.primary }}
-                thumbColor={status ? colors.primary : "#f4f3f4"}
+       
               />
             </View>
           )}
