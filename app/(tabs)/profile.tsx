@@ -15,6 +15,8 @@ import colors from "@/assets/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import RefreshIcon from "react-native-vector-icons/Feather";
+import { Switch } from "@rneui/themed";
+import * as Calendar from "expo-calendar";
 const Profile: React.FC = () => {
   const { user, setUser } = useContext(context);
   const [data, setData] = useState<{
@@ -22,7 +24,8 @@ const Profile: React.FC = () => {
     img_profile: string | null;
   } | null>(null);
   const [loading, setLoading] = useState(false);
-
+  //monitora se existe permissao para o calendario do dispositivo
+  const [calendarPermission, setCalendarPermission] = useState(false);
   async function getData() {
     setLoading(true);
     await api
@@ -47,12 +50,23 @@ const Profile: React.FC = () => {
   }
 
   useFocusEffect(
-    useCallback(()=> {
+    useCallback(() => {
       if (user) {
         getData();
       }
-    },[user])
-  )
+    }, [user])
+  );
+
+  async function getCalendarPermissions() {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status === "granted") {
+      console.log("Permissão concedida!");
+      setCalendarPermission(true);
+    } else {
+    Toast.show("Permissão negada!, Vá até as configurações do dispositivo, e ative a permissão de calendário para este  aplicativo.", { type: "danger" });
+      setCalendarPermission(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -62,15 +76,12 @@ const Profile: React.FC = () => {
             <Image
               style={styles.img_container}
               source={{ uri: data.img_profile }}
-             
             />
           ) : (
             <User name="user-circle" color={"white"} size={50} />
           )}
           <Text style={styles.text}>{data?.name_user}</Text>
         </View>
-      
-        
       </View>
       <View style={styles.content}>
         <View style={styles.form}>
@@ -86,16 +97,30 @@ const Profile: React.FC = () => {
           >
             <Text style={styles.option}>Meu plano</Text>
           </TouchableOpacity>
-         
 
           <Text style={styles.title}>CONFIGURAÇÃO</Text>
+          <View style={styles.permission}>
+          
+
+            <Text style={styles.option}>Permissão calendário</Text>
+            <Switch
+              value={calendarPermission}
+              onValueChange={() => getCalendarPermissions()}
+              color={colors.primary}
+            
+              thumbColor={false ? colors.primary : "#f4f3f4"}
+            />
+          </View>
           <TouchableOpacity
-          onPress={() => router.push("/settingsPages/profissionals/profissionals")}
+            onPress={() =>
+              router.push("/settingsPages/profissionals/profissionals")
+            }
           >
             <Text style={styles.option}>Profissionais</Text>
           </TouchableOpacity>
+        
           <TouchableOpacity
-          onPress={() => router.push("/settingsPages/security")}
+            onPress={() => router.push("/settingsPages/security")}
           >
             <Text style={styles.option}>Segurança</Text>
           </TouchableOpacity>
@@ -165,8 +190,13 @@ const styles = StyleSheet.create({
   },
   img_container: {
     borderRadius: 50,
-    width:50,
-    height:50
+    width: 50,
+    height: 50,
   },
+  permission:{
+    flexDirection: "row",
+    alignItems: "center",
+    gap:4
+  }
 });
 export default Profile;

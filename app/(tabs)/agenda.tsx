@@ -46,18 +46,6 @@ const AgendaPage = () => {
   
 
 
-  useEffect(() => {
-    async function getCalendarPermissions() {
-      const { status } = await Calendar.requestCalendarPermissionsAsync();
-      if (status === 'granted') {
-        console.log('Permissão concedida!');
-      } else {
-        console.log('Permissão negada!');
-      }
-    }
-    getCalendarPermissions();
-  }, []);
-
 
 
 
