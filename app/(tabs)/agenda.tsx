@@ -6,6 +6,7 @@ import {
   Dimensions,
   TouchableOpacity,
   SafeAreaView,
+  Platform
 } from "react-native";
 import { Agenda } from "react-native-calendars";
 import colors from "@/assets/colors";
@@ -14,7 +15,8 @@ import { context } from "../_contexts";
 import { Toast } from "react-native-toast-notifications";
 import { useFocusEffect } from "expo-router";
 import { format } from "date-fns";
-
+import * as Calendar from 'expo-calendar';
+import { AntDesign } from "@expo/vector-icons";
 const height = Dimensions.get("screen").height;
 
 interface Agendamento {
@@ -42,6 +44,22 @@ const AgendaPage = () => {
   const { user } = useContext(context);
   const [appointments, setAppointments] = useState<Agendamento[]>([]);
   
+
+
+  useEffect(() => {
+    async function getCalendarPermissions() {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status === 'granted') {
+        console.log('Permissão concedida!');
+      } else {
+        console.log('Permissão negada!');
+      }
+    }
+    getCalendarPermissions();
+  }, []);
+
+
+
 
   async function getAppointments() {
     try {
@@ -98,7 +116,52 @@ const AgendaPage = () => {
   function formatHour(value: Date) {
     return format(value, "HH:mm");
   }
-  console.log(appointments)
+  
+
+  async function getOrCreateCalendar() {
+    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+  
+    const editableCalendar = calendars.find(
+      (cal) =>
+        cal.allowsModifications &&
+        cal.source?.name !== 'Subscribed Calendars' // evitar calendários de leitura apenas
+    );
+  
+    if (!editableCalendar) {
+      throw new Error("Nenhum calendário editável encontrado no iPhone.");
+    }
+  
+    return editableCalendar.id;
+  }
+  
+  
+  
+  // Função para exportar os agendamentos para o calendário
+  // Essa função deve ser chamada quando o usuário clicar no botão de exportar
+  async function exportarParaCalendario() {
+    try {
+      const calendarId = await getOrCreateCalendar();
+  
+      for (const agendamento of appointments) {
+        const start = new Date(agendamento.hour_start);
+        const end = new Date(agendamento.hour_end);
+  
+        await Calendar.createEventAsync(calendarId, {
+          title: agendamento.services.map((s) => s.name).join(", "),
+          notes: `Cliente: ${agendamento.user.name}\n ${agendamento.professional && `Profissional: ${agendamento.professional.name}` }`,
+          startDate: start,
+          endDate: end,
+          timeZone: 'America/Sao_Paulo',
+        });
+      }
+  
+      Toast.show('Agendamentos exportados para o calendário com sucesso!', { type: "success" });
+    } catch (error) {
+      console.log(error);
+      Toast.show('Erro ao exportar para o calendário.', { type: "danger" });
+    }
+  }
+  
   return (
     <SafeAreaView style={styles.container}>
       <Agenda
@@ -138,6 +201,25 @@ const AgendaPage = () => {
           dayTextColor: "#2d4150",
         }}
       />
+      <View style={{ padding: 10 }}>
+              <TouchableOpacity
+  style={{
+    backgroundColor: colors.primary,
+    padding: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap:5
+  }}
+  onPress={exportarParaCalendario}
+>
+  <Text style={{ color: '#fff', fontWeight: 'bold' }}>Exportar para Calendário</Text>
+  <AntDesign name="export" size={24} color="white"/>
+</TouchableOpacity>
+      </View>
+
     </SafeAreaView>
   );
 };
