@@ -9,6 +9,7 @@ import {
   View,
   Image,
   Pressable,
+  Linking,
 } from "react-native";
 import { context } from "../_contexts";
 import api from "../hooks/apiService";
@@ -19,7 +20,8 @@ import { Tab, TabView } from "@rneui/themed";
 import { TabItem } from "@rneui/base/dist/Tab/Tab.Item";
 import ServicesComponents from "../_components/servicesComponents";
 import LoadingComponent from "../_components/LoadingComponent";
-import { Feather } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
+import ButtonComponent from "../_components/buttonComponent";
 
 type enterprise = {
   name_enterprise: string;
@@ -37,6 +39,7 @@ type enterprise = {
   cep: string;
   id: string;
   state: string;
+  instagram: string;
 };
 type service = {
   id: string;
@@ -69,6 +72,7 @@ const MyLoja: React.FC = () => {
     cep: "",
     id: "",
     state: "",
+    instagram: "",
   });
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<
@@ -157,7 +161,19 @@ const MyLoja: React.FC = () => {
   useEffect(() => {
     getSevicesByCategory();
   }, [categorySelected]);
-
+  const openInstagram = async () => {
+    const username = "_ojottaof";
+    const appUrl = `instagram://user?username=${username}`;
+    const webUrl = `https://www.instagram.com/${username}`;
+  
+    const supported = await Linking.canOpenURL(appUrl);
+  
+    if (supported) {
+      await Linking.openURL(appUrl); // Tenta abrir no app
+    } else {
+      await Linking.openURL(webUrl); // Se não tiver o app, abre no navegador
+    }
+  };
   return (
     <View style={styles.container}>
       {loading ? (
@@ -199,7 +215,13 @@ const MyLoja: React.FC = () => {
                   {data.city} {data.state} {data.cep && `- ${data.cep}`}{" "}
                 </Text>
               </View>
+
+           
             </View>
+            <TouchableOpacity style={{backgroundColor:colors.primary, padding:10, borderRadius:8, marginTop:20, alignItems:'center', paddingHorizontal:10}} onPress={() => {}}>
+                <Text style={{color:'white', fontWeight:'500'}}>Agendar</Text>
+              </TouchableOpacity>
+
 
             <Tab
               style={{ marginTop: 20 }}
@@ -289,12 +311,14 @@ const MyLoja: React.FC = () => {
                     )}
                   />
                 )}
+               
               </View>
             ) : index === 1 ? (
               <View></View>
             ) : (
-              <View style={[styles.dataContent, { padding: 10 }]}>
-                <Text style={{fontSize:16}}>Profissionais</Text>
+              <View style={[styles.dataContent, { padding: 10, gap:10 }]}>
+               
+                    <Text style={{ fontSize: 16 }}>Profissionais</Text>
 
                 <FlatList
                   data={profissionals}
@@ -312,6 +336,17 @@ const MyLoja: React.FC = () => {
                     </Pressable>
                   )}
                 />
+              
+              
+             
+                 <Text style={{ fontSize: 16, paddingVertical:10 }}>Redes Sociais</Text>
+              <TouchableOpacity style={{flexDirection:"row", gap:10, alignItems:"center", backgroundColor:'white', padding:6 , borderRadius:8}} onPress={openInstagram}>
+                  <AntDesign name="instagram" size={24} color={colors.primary} />
+                  <Text style={{color:colors.primary}}>Acessar instagram</Text>
+                 </TouchableOpacity>
+            
+
+               
               </View>
             )}
           </View>

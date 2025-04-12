@@ -56,6 +56,7 @@ const MyData = () => {
     banner: "",
     cep: "",
     id: "",
+    instagram: "",
   });
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -73,6 +74,7 @@ const MyData = () => {
   const [district, setDistrict] = useState("");
   const [number, setNumber] = useState("");
   const [cep, setCep] = useState("");
+  const [instagram, setInstagram] = useState("");
   //image files
   const [profileFile, setProfileFile] = useState<string | null>(null);
   const [banneFile, setBannerFile] = useState<string | null>(null);
@@ -100,6 +102,7 @@ const MyData = () => {
         setImg_profile(data?.img_profile);
         setBanner(data?.banner);
         setCep(data?.cep);
+        setInstagram(data?.instagram);
       })
       .catch((error) => {
         setLoading(false);
@@ -152,6 +155,7 @@ const MyData = () => {
       latitude: null,
       longitude: null,
       cep: cep,
+      instagram: instagram,
     };
 
     // Verificando se o campo img_profile ou banner é um objeto de arquivo
@@ -291,7 +295,6 @@ const MyData = () => {
                   style={styles.imagePicker}
                   onPress={() => setOpenColor(!openColor)}
                 >
-                  
                   <Text>Cor do topo da loja</Text>
                 </TouchableOpacity>
                 {openColor && (
@@ -302,6 +305,12 @@ const MyData = () => {
                   />
                 )}
 
+                <InputComponent
+                  label="Url do Instagram"
+                  value={instagram}
+                  setValue={setInstagram}
+                  placeholder="Instagram da sua loja"
+                />
                 <TouchableOpacity
                   style={styles.imagePicker}
                   onPress={() => pickImage("banner")}
