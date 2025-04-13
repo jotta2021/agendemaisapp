@@ -53,6 +53,11 @@ type service = {
   time: string;
   value: number;
 };
+type professionals = {
+  id:string
+  name:string
+  description:string
+}
 const height = Dimensions.get("screen").height;
 const MyLoja: React.FC = () => {
   const { user, setUser } = useContext(context);
@@ -81,7 +86,7 @@ const MyLoja: React.FC = () => {
   const [categorySelected, setCategorySelected] = useState<string>("");
   const [services, setServices] = useState<service[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
-  const [profissionals, setProfissionals] = useState([]);
+  const [profissionals, setProfissionals] = useState<professionals[]>([]);
   //controla os tabs
   const [index, setIndex] = useState(0);
 
@@ -162,16 +167,14 @@ const MyLoja: React.FC = () => {
     getSevicesByCategory();
   }, [categorySelected]);
   const openInstagram = async () => {
-    const username = "_ojottaof";
-    const appUrl = `instagram://user?username=${username}`;
-    const webUrl = `https://www.instagram.com/${username}`;
+ 
   
-    const supported = await Linking.canOpenURL(appUrl);
+    const supported = await Linking.canOpenURL(data.instagram);
   
     if (supported) {
-      await Linking.openURL(appUrl); // Tenta abrir no app
+      await Linking.openURL(data.instagram); // Tenta abrir no app
     } else {
-      await Linking.openURL(webUrl); // Se não tiver o app, abre no navegador
+      await Linking.openURL(data.instagram); // Se não tiver o app, abre no navegador
     }
   };
   return (
