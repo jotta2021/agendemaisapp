@@ -341,12 +341,19 @@ const MyLoja: React.FC = () => {
                 />
               
               
-             
-                 <Text style={{ fontSize: 16, paddingVertical:10 }}>Redes Sociais</Text>
+             {
+              data.instagram!=='' && ( 
+                <View>
+                     <Text style={{ fontSize: 16, paddingVertical:10 }}>Redes Sociais</Text>
               <TouchableOpacity style={{flexDirection:"row", gap:10, alignItems:"center", backgroundColor:'white', padding:6 , borderRadius:8}} onPress={openInstagram}>
                   <AntDesign name="instagram" size={24} color={colors.primary} />
                   <Text style={{color:colors.primary}}>Acessar instagram</Text>
                  </TouchableOpacity>
+                </View>
+            
+              )
+             }
+                
             
 
                
