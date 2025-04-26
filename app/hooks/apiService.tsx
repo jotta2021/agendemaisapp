@@ -3,7 +3,7 @@ import axios from "axios";
 import { Platform } from "react-native";
 
 const api = axios.create({
-  baseURL: "http://192.168.3.156:3333",
+  baseURL: "https://agende-api.onrender.com",
 });
 
 const isBrowser = typeof window !== "undefined"; // Verifica se está no navegador

@@ -38,6 +38,7 @@ type enterprise = {
   banner: string;
   cep: string;
   id: string;
+  instagram: string;
 };
 const MyData = () => {
   const { user, setUser } = useContext(context);
@@ -237,7 +238,7 @@ const MyData = () => {
   }
 
   return (
-    <KeyboardAvoidingView behavior="height">
+    <KeyboardAvoidingView behavior="height" style={{flex:1}}>
       <TouchableWithoutFeedback
         onPress={() => {
           Platform.OS === "web" ? {} : Keyboard.dismiss();

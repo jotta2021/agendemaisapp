@@ -20,7 +20,7 @@ interface Props {
   };
 }
 const ServicesComponents = ({ data }: Props) => {
-  console.log("data", data);
+  
 
   function formatHour(timeString: string) {
     if (!timeString) return "";

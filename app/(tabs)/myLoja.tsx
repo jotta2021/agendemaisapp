@@ -54,10 +54,10 @@ type service = {
   value: number;
 };
 type professionals = {
-  id:string
-  name:string
-  description:string
-}
+  id: string;
+  name: string;
+  description: string;
+};
 const height = Dimensions.get("screen").height;
 const MyLoja: React.FC = () => {
   const { user, setUser } = useContext(context);
@@ -167,10 +167,8 @@ const MyLoja: React.FC = () => {
     getSevicesByCategory();
   }, [categorySelected]);
   const openInstagram = async () => {
- 
-  
     const supported = await Linking.canOpenURL(data.instagram);
-  
+
     if (supported) {
       await Linking.openURL(data.instagram); // Tenta abrir no app
     } else {
@@ -218,13 +216,20 @@ const MyLoja: React.FC = () => {
                   {data.city} {data.state} {data.cep && `- ${data.cep}`}{" "}
                 </Text>
               </View>
-
-           
             </View>
-            <TouchableOpacity style={{backgroundColor:colors.primary, padding:10, borderRadius:8, marginTop:20, alignItems:'center', paddingHorizontal:10}} onPress={() => {}}>
-                <Text style={{color:'white', fontWeight:'500'}}>Agendar</Text>
-              </TouchableOpacity>
-
+            <TouchableOpacity
+              style={{
+                backgroundColor: colors.primary,
+                padding: 10,
+                borderRadius: 8,
+                marginTop: 20,
+                alignItems: "center",
+                paddingHorizontal: 10,
+              }}
+              onPress={() => {}}
+            >
+              <Text style={{ color: "white", fontWeight: "500" }}>Agendar</Text>
+            </TouchableOpacity>
 
             <Tab
               style={{ marginTop: 20 }}
@@ -299,29 +304,30 @@ const MyLoja: React.FC = () => {
                     <LoadingComponent />
                   </View>
                 ) : (
-                  <FlatList
+                  <View style={{ width: "100%" }}>
+                      <FlatList
                     data={services}
                     contentContainerStyle={{
                       marginTop: 20,
                       paddingHorizontal: 10,
                       gap: 10,
                     }}
-                    horizontal
+                    horizontal={true}
                     showsHorizontalScrollIndicator={false}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                       <ServicesComponents data={item} />
                     )}
                   />
+                  </View>
+                
                 )}
-               
               </View>
             ) : index === 1 ? (
               <View></View>
             ) : (
-              <View style={[styles.dataContent, { padding: 10, gap:10 }]}>
-               
-                    <Text style={{ fontSize: 16 }}>Profissionais</Text>
+              <View style={[styles.dataContent, { padding: 10, gap: 10 }]}>
+                <Text style={{ fontSize: 16 }}>Profissionais</Text>
 
                 <FlatList
                   data={profissionals}
@@ -339,24 +345,34 @@ const MyLoja: React.FC = () => {
                     </Pressable>
                   )}
                 />
-              
-              
-             {
-              data.instagram!=='' && ( 
-                <View>
-                     <Text style={{ fontSize: 16, paddingVertical:10 }}>Redes Sociais</Text>
-              <TouchableOpacity style={{flexDirection:"row", gap:10, alignItems:"center", backgroundColor:'white', padding:6 , borderRadius:8}} onPress={openInstagram}>
-                  <AntDesign name="instagram" size={24} color={colors.primary} />
-                  <Text style={{color:colors.primary}}>Acessar instagram</Text>
-                 </TouchableOpacity>
-                </View>
-            
-              )
-             }
-                
-            
 
-               
+                {data.instagram !== "" && (
+                  <View>
+                    <Text style={{ fontSize: 16, paddingVertical: 10 }}>
+                      Redes Sociais
+                    </Text>
+                    <TouchableOpacity
+                      style={{
+                        flexDirection: "row",
+                        gap: 10,
+                        alignItems: "center",
+                        backgroundColor: "white",
+                        padding: 6,
+                        borderRadius: 8,
+                      }}
+                      onPress={openInstagram}
+                    >
+                      <AntDesign
+                        name="instagram"
+                        size={24}
+                        color={colors.primary}
+                      />
+                      <Text style={{ color: colors.primary }}>
+                        Acessar instagram
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
             )}
           </View>

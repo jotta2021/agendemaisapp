@@ -1,4 +1,12 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   View,
   Text,
@@ -17,7 +25,7 @@ import colors from "@/assets/colors";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Feather from "react-native-vector-icons/Feather";
 import SearchBar from "../_components/SearchBar";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import api from "../hooks/apiService";
 import { context } from "../_contexts";
 import { Toast } from "react-native-toast-notifications";
@@ -90,18 +98,20 @@ const Services = () => {
       });
   }
 
-  useEffect(() => {
-    getServices();
-    getCategories();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getServices();
+      getCategories();
+    },[])
+  );
 
   function formatHour(timeString: string) {
     if (!timeString) return "";
-  
+
     const time = parse(timeString, "HH:mm:ss", new Date());
     const hours = time.getHours();
     const minutes = time.getMinutes();
-  
+
     if (hours > 0 && minutes > 0) {
       return `${hours}h${minutes}min`;
     } else if (hours > 0) {
@@ -178,18 +188,25 @@ const Services = () => {
             contentContainerStyle={styles.containerServices}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.service}
-              onPress={()=> router.push(`/addService/${item.id}` as never)}
+              <TouchableOpacity
+                style={styles.service}
+                onPress={() => router.push(`/addService/${item.id}` as never)}
               >
                 <View style={styles.image}>
-                  <Image source={{uri:item.image}} style={[styles.image,{objectFit:'contain'}]} />
+                  <Image
+                    source={{ uri: item.image }}
+                    style={[styles.image, { objectFit: "contain" }]}
+                  />
                 </View>
                 <View>
                   <Text style={styles.titleService}>{item.name}</Text>
-                  <Text style={styles.description}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  >{item.description}</Text>
+                  <Text
+                    style={styles.description}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.description}
+                  </Text>
                   <Text style={styles.time}>{formatHour(item.time)}</Text>
                   <View style={styles.containerValue}>
                     <View
@@ -233,15 +250,30 @@ const Services = () => {
       <BottomSheet snapPoints={snapPoints} index={-1} ref={bottomSheetRef}>
         <BottomSheetView>
           <View style={{ paddingHorizontal: 10 }}>
-            <View style={{flexDirection:'row', justifyContent:'space-between',alignItems:'flex-start',paddingHorizontal:10}}>
-                <Text style={styles.title}>Listar serviços por categoria</Text>
-            <TouchableOpacity style={{backgroundColor:colors.light, borderRadius:30, width:30, height:30, alignItems:'center', justifyContent:'center'}}
-            onPress={handleClosePress}
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                paddingHorizontal: 10,
+              }}
             >
-<Feather name="x" size={24}/>
-            </TouchableOpacity>
+              <Text style={styles.title}>Listar serviços por categoria</Text>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: colors.light,
+                  borderRadius: 30,
+                  width: 30,
+                  height: 30,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                onPress={handleClosePress}
+              >
+                <Feather name="x" size={24} />
+              </TouchableOpacity>
             </View>
-          
+
             <FlatList
               data={categoriesList}
               keyExtractor={(item, index) => index.toString()}
@@ -282,22 +314,20 @@ const Services = () => {
                 </TouchableOpacity>
               )}
             />
-            {
-              categorySelected!=='' &&
+            {categorySelected !== "" && (
               <View style={{ alignItems: "center" }}>
-              <TouchableOpacity
-                style={styles.buttonRemove}
-                onPress={() => {
-                  setCategorySelected("");
-                  getServices();
-                  handleClosePress()
-                }}
-              >
-                <Text>Desmarcar categoria</Text>
-              </TouchableOpacity>
-            </View>
-            }
-            
+                <TouchableOpacity
+                  style={styles.buttonRemove}
+                  onPress={() => {
+                    setCategorySelected("");
+                    getServices();
+                    handleClosePress();
+                  }}
+                >
+                  <Text>Desmarcar categoria</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </BottomSheetView>
       </BottomSheet>
@@ -306,7 +336,7 @@ const Services = () => {
         icon={<Ionicons name="add" size={20} color={"white"} />}
         color={colors.primary}
         placement={"right"}
-        onPress={() => router.push('/addService/[id]')}
+        onPress={() => router.push("/addService/[id]")}
       />
     </SafeAreaView>
   );
@@ -338,11 +368,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    elevation:1,
-    shadowColor:'black',
-    shadowOffset:{width:0,height:1},
-    shadowOpacity:0.1,
-    shadowRadius:4
+    elevation: 1,
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   image: {
     backgroundColor: "#d1d1d1",
@@ -359,7 +389,7 @@ const styles = StyleSheet.create({
     color: "grey",
     flexWrap: "wrap",
     width: width * 0.6,
-    fontSize:12
+    fontSize: 12,
   },
   time: {
     fontFamily: "Poppins-Regular",
@@ -386,8 +416,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 10,
     padding: 4,
-    width:80,
-    alignItems:'center'
+    width: 80,
+    alignItems: "center",
   },
   categoryContainer: {
     padding: 4,
