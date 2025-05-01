@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Image,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import api from "../hooks/apiService";
 import { context } from "../_contexts";
@@ -17,6 +18,7 @@ import { router, useFocusEffect } from "expo-router";
 import RefreshIcon from "react-native-vector-icons/Feather";
 import { Switch } from "@rneui/themed";
 import * as Calendar from "expo-calendar";
+import * as Notifications from "expo-notifications";
 const Profile: React.FC = () => {
   const { user, setUser } = useContext(context);
   const [data, setData] = useState<{
@@ -26,6 +28,8 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false);
   //monitora se existe permissao para o calendario do dispositivo
   const [calendarPermission, setCalendarPermission] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState(false);
+
   async function getData() {
     setLoading(true);
     await api
@@ -57,16 +61,19 @@ const Profile: React.FC = () => {
     }, [user])
   );
 
-  async function getCalendarPermissions() {
-    const { status } = await Calendar.requestCalendarPermissionsAsync();
-    if (status === "granted") {
-      console.log("Permissão concedida!");
-      setCalendarPermission(true);
-    } else {
-    Toast.show("Permissão negada!, Vá até as configurações do dispositivo, e ative a permissão de calendário para este  aplicativo.", { type: "danger" });
-      setCalendarPermission(false);
-    }
+
+  async function sendLocalNotification() {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Notificação de Teste",
+        body: "Esta é uma notificação de teste local!",
+        data: { test: 'teste' },
+      },
+      trigger: { seconds: 2,      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      }, // A notificação será disparada após 1 segundo
+    });
   }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -85,6 +92,7 @@ const Profile: React.FC = () => {
       </View>
       <View style={styles.content}>
         <View style={styles.form}>
+     
           <Text style={styles.title}>MINHA CONTA</Text>
 
           <TouchableOpacity
@@ -99,18 +107,8 @@ const Profile: React.FC = () => {
           </TouchableOpacity>
 
           <Text style={styles.title}>CONFIGURAÇÃO</Text>
-          <View style={styles.permission}>
-          
-
-            <Text style={styles.option}>Permissão calendário</Text>
-            <Switch
-              value={calendarPermission}
-              onValueChange={() => getCalendarPermissions()}
-              color={colors.primary}
-            
-              thumbColor={false ? colors.primary : "#f4f3f4"}
-            />
-          </View>
+       
+        
           <TouchableOpacity
             onPress={() =>
               router.push("/settingsPages/profissionals/profissionals")

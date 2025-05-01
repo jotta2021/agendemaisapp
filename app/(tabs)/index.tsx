@@ -246,6 +246,16 @@ const Services = () => {
             }
           />
         )}
+
+        {
+          !loading && filteredServices.length === 0 && (
+            <View style={{ height:'90%', alignItems: "center", justifyContent: "center" }}>
+              <Text>
+                Nenhum serviço encontrado 
+              </Text>
+            </View>
+          )
+        }
       </View>
       <BottomSheet snapPoints={snapPoints} index={-1} ref={bottomSheetRef}>
         <BottomSheetView>

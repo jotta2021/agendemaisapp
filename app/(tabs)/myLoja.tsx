@@ -10,6 +10,7 @@ import {
   Image,
   Pressable,
   Linking,
+  ScrollView,
 } from "react-native";
 import { context } from "../_contexts";
 import api from "../hooks/apiService";
@@ -176,7 +177,7 @@ const MyLoja: React.FC = () => {
     }
   };
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {loading ? (
         <View style={{ flex: 1, justifyContent: "center" }}>
           <LoadingComponent />
@@ -378,7 +379,7 @@ const MyLoja: React.FC = () => {
           </View>
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 };
 

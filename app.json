@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Agende+ estabelecimentos",
-    "slug": "Agende+ estabelecimentos",
+    "slug": "agendemaisestabelecimentos",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -11,11 +11,19 @@
     "ios": {
       "supportsTablet": true
     },
+    "notification": {
+      "icon": "./assets/images/icon.png"
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,7 +41,6 @@
           "backgroundColor": "#ffffff"
         }
       ],
-
       [
         "expo-image-picker",
         {
@@ -49,6 +56,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "45bd5598-40f0-4a4c-87a3-8f693d4f3b7a"
+      }
     }
   }
 }

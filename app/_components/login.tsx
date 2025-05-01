@@ -31,20 +31,12 @@ const Login = ({ close }: Props) => {
   const [password, setPassword] = useState("");
   const [remenber, setRemenber] = useState(false);
   const [securityPassword, setSecurityPassword] = useState(true);
-  const { user, setUser } = useContext(context) || {};
+  const { user, setUser ,tokenExp} = useContext(context) || {};
   const [loading, setLoading] = useState(false);
   const [recoveryPassword, setRecoveryPassword] = useState(false);
   const router = useRouter();
   const toast = useToast();
-  async function testStorage() {
-    try {
-      await AsyncStorage.setItem("testKey", "Hello World");
-      const value = await AsyncStorage.getItem("testKey");
-      console.log("Valor armazenado:", value);
-    } catch (error) {
-      console.log("Erro ao testar AsyncStorage:", error);
-    }
-  }
+
 
   async function handleLogin() {
     if (email !== "" && password !== "") {
@@ -53,6 +45,7 @@ const Login = ({ close }: Props) => {
         .post("/loginEnterprise", {
           email: email,
           password: password,
+          tokenExp: tokenExp,
         })
         .then(async (res) => {
           const data = res.data;

@@ -117,6 +117,15 @@ useFocusEffect(
         )}
       </View>
     
+      {
+              !loading && filteredCategories.length === 0 && (
+                <View style={{ height:'90%', alignItems: "center", justifyContent: "center" }}>
+                  <Text>
+                    Nenhuma categoria encontrada
+                  </Text>
+                </View>
+              )
+            }
 
       <FAB
         icon={<Ionicons name="add" size={20} color={"white"} />}
