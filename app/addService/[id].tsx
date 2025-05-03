@@ -11,6 +11,7 @@ import {
   Dimensions,
   Image,
   Switch,
+  Platform,
 } from "react-native";
 import InputComponent from "../_components/InputComponent";
 import InputMasKComponent from "../_components/InputMaskComponent";
@@ -149,10 +150,9 @@ console.log('id', id)
           time: time,
           id_category: category,
           id_enterprise: user?.id,
-          image: "",
           status: status
         };
-        console.log(data);
+   
         const formdata = new FormData();
         Object.entries(data).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
@@ -167,24 +167,34 @@ console.log('id', id)
           const fileType = uri.split(".").pop(); // Pegando a extensão do arquivo
           const fileName = `profile.${fileType}`;
 
-          // Convertendo o URI em um objeto File
-          const file = {
-            uri: uri,
-            name: fileName,
-            type: `image/${fileType}`,
-          };
-
+         
+          if (Platform.OS === "web") {
+            const response = await fetch(uri);
+            const blob = await response.blob();
+          
+            const fileType = blob.type.split("/")[1];
+            const file = new File([blob], `image.${fileType}`, { type: blob.type });
+            formdata.append("image", file);
+          
+          }
+           else {
+            const file = {
+              uri,
+              name: fileName,
+              type: `image/${fileType}`,
+            };
+            formdata.append("image", file as any);
+          }
           // Adicionando a imagem ao FormData
-          formdata.append("image", file as never);
-        } else {
-          formdata.append("image", image);
+        
+        
+        } 
+        for (let pair of formdata.entries()) {
+          console.log(pair[0] + ', ' + pair[1]);
         }
-
-        await api.put("/service/update", formdata, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        
+        await api.post("/service/update", formdata);
+        
         setLoading(false);
         Toast.show("Serviço atualizado", { type: "success" });
         setCategory("");
@@ -229,8 +239,16 @@ console.log('id', id)
   
           if (imageFile ) {
             const uri = imageFile;
-        
-            // Pegando o tipo do arquivo e criando um objeto File
+            if (Platform.OS === "web") {
+              const response = await fetch(uri);
+              const blob = await response.blob();
+            
+              const fileType = blob.type.split("/")[1];
+              const file = new File([blob], `image.${fileType}`, { type: blob.type });
+              formdata.append("image", file);
+            
+            }else{
+                // Pegando o tipo do arquivo e criando um objeto File
             const fileType = uri.split('.').pop(); // Pegando a extensão do arquivo
             const fileName = `profile.${fileType}`;
         
@@ -243,6 +261,8 @@ console.log('id', id)
         
             // Adicionando a imagem ao FormData
             formdata.append('image', file as never);
+            }
+          
           }
         
   

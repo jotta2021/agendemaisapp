@@ -162,8 +162,16 @@ const MyData = () => {
     // Verificando se o campo img_profile ou banner é um objeto de arquivo
     if (profileFile) {
       const uri = profileFile;
-
-      // Pegando o tipo do arquivo e criando um objeto File
+      if (Platform.OS === "web") {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+      
+        const fileType = blob.type.split("/")[1];
+        const file = new File([blob], `image.${fileType}`, { type: blob.type });
+        formdata.append("img_profile", file);
+      
+      }else{
+         // Pegando o tipo do arquivo e criando um objeto File
       const fileType = uri.split(".").pop(); // Pegando a extensão do arquivo
       const fileName = `profile.${fileType}`;
 
@@ -176,13 +184,23 @@ const MyData = () => {
 
       // Adicionando a imagem ao FormData
       formdata.append("img_profile", file as never);
+      }
+     
     }
 
     if (banneFile) {
       const uri = banneFile;
-
-      // Pegando o tipo do arquivo e criando um objeto File
-      const fileType = uri.split(".").pop(); // Pegando a extensão do arquivo
+ if (Platform.OS === "web") {
+              const response = await fetch(uri);
+              const blob = await response.blob();
+            
+              const fileType = blob.type.split("/")[1];
+              const file = new File([blob], `image.${fileType}`, { type: blob.type });
+              formdata.append("banner", file);
+            
+            }else{
+                // Pegando o tipo do arquivo e criando um objeto File
+                const fileType = uri.split(".").pop(); // Pegando a extensão do arquivo
       const fileName = `banner.${fileType}`;
 
       // Convertendo o URI em um objeto File
@@ -194,6 +212,9 @@ const MyData = () => {
 
       // Adicionando a imagem ao FormData
       formdata.append("banner", file as never);
+            }
+    
+    
     }
 
     // Adicionando outros dados ao FormData
